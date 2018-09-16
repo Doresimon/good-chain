@@ -5,16 +5,8 @@ an experimental blockchain for public benefits.
 
 - developping language: `golang`
 - reference chain structure: `ethereum`
-
-
-
-
-
-govendor fetch github.com/google/leveldb
-
-
-
-
+- db: `leveldb`
+- communication:  `rpc`
 
 ## Third Party Library
 
