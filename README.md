@@ -20,14 +20,14 @@ govendor fetch github.com/google/leveldb
 
 > export PATH=~/go/bin:$PATH
 
-- `github.com/google/leveldb`
-
-    > go get -u github.com/google/leveldb
-
 - `glide`
 
     > curl https://glide.sh/get | sh
 
-- `govendor`
+    or
 
-    > go get -u github.com/kardianos/govendor
+    > sudo apt install go-glide
+
+- `github.com/google/leveldb`
+
+    > go get -u github.com/syndtr/goleveldb/leveldb
