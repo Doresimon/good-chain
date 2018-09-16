@@ -23,3 +23,8 @@ an experimental blockchain for public benefits.
 - `github.com/google/leveldb`
 
     > go get -u github.com/syndtr/goleveldb/leveldb
+
+
+fetch vendor
+
+> glide install
