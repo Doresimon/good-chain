@@ -1,0 +1,21 @@
+hash: 37aa66fba575bc0ce67d3660aeadb89a2cf7314457cc35daa2b4fe76d90afe16
+updated: 2018-09-16T21:24:54.499019215+08:00
+imports:
+- name: github.com/golang/snappy
+  version: 2e65f85255dbc3072edf28d6b5b8efc472979f5a
+- name: github.com/syndtr/goleveldb
+  version: ae2bd5eed72d46b28834ec3f60db3a3ebedd8dbd
+  subpackages:
+  - leveldb
+  - leveldb/cache
+  - leveldb/comparer
+  - leveldb/errors
+  - leveldb/filter
+  - leveldb/iterator
+  - leveldb/journal
+  - leveldb/memdb
+  - leveldb/opt
+  - leveldb/storage
+  - leveldb/table
+  - leveldb/util
+testImports: []
