@@ -18,9 +18,9 @@ an experimental blockchain for public benefits.
 
     or
 
-    > sudo apt install go-glide
+    > sudo apt install golang-glide
 
-- `github.com/google/leveldb`
+- `leveldb`
 
     > go get -u github.com/syndtr/goleveldb/leveldb
 
