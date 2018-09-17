@@ -8,8 +8,9 @@ import (
 )
 
 type ChainConfig struct {
-	UID  *big.Int `json:"uid"`
-	Name string   `json:"name"`
+	Version uint16   `json:"version"`
+	UID     *big.Int `json:"uid"`
+	Name    string   `json:"name"`
 }
 
 var defaultConfig *ChainConfig
@@ -19,18 +20,19 @@ func init() {
 	defaultConfig = new(ChainConfig)
 	defaultConfig.Name = "default chain -. -"
 	defaultConfig.UID = big.NewInt(0)
+	defaultConfig.Version = 0x1000
 
 	defaultPath = "./chain.config"
 }
 
 func (this *ChainConfig) read(path string) {
-	fmt.Println("ChainConfig.read(path string)")
+	fmt.Printf("ChainConfig.read(%s)\n", path)
 
 	dat, err := ioutil.ReadFile(path)
 	config := new(ChainConfig)
 
 	if err != nil {
-		data, _ := json.Marshal(defaultConfig)
+		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
 		config = defaultConfig
 
 		fmt.Printf("Create new %s file \n", path)
@@ -51,7 +53,7 @@ func (this *ChainConfig) readDefault() {
 	config := new(ChainConfig)
 
 	if err != nil {
-		data, _ := json.Marshal(defaultConfig)
+		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
 		config = defaultConfig
 
 		fmt.Println("Create new chain.config file")
