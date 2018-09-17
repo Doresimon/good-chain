@@ -3,23 +3,43 @@ package rpc
 import (
 	"fmt"
 	"net/rpc"
-
-	"../common"
 )
 
-func Client() {
-	var args = common.Args{24, 8}
-	var result = common.Result{}
+// HTTPClient ...
+type HTTPClient struct {
+	client  *rpc.Client
+	network string
+	address string
+}
 
-	var client, err = rpc.DialHTTP("tcp", "127.0.0.1:1234")
+// Call ...
+// call a method from server
+func (c *HTTPClient) Call(m string, args interface{}) (string, error) {
+	fmt.Println("rpc.HTTPClient.Call()")
+	result := ""
+
+	err := c.client.Call(m, args, &result)
 	if err != nil {
-		fmt.Println("连接RPC服务失败：", err)
+		fmt.Println("call failed: ", err)
+	}
+	return result, err
+}
+
+// NewClient ...
+// create a new Http Client
+func NewClient(n string, a string) (*HTTPClient, error) {
+	fmt.Println("rpc.NewClient()")
+
+	var err error
+
+	c := new(HTTPClient)
+	c.network = n
+	c.address = a
+	c.client, err = rpc.DialHTTP(c.network, c.address)
+
+	if err != nil {
+		fmt.Println("dail failed: ", err)
 	}
 
-	fmt.Println("[CALL] start calling")
-	err = client.Call("MathService.Divide", args, &result)
-	if err != nil {
-		fmt.Println("调用失败：", err)
-	}
-	fmt.Println("调用结果：", result.Value)
+	return c, err
 }

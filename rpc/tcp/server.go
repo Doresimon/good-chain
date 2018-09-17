@@ -9,21 +9,21 @@ import (
 )
 
 func Server() {
-	var ms = new(common.MathService) //实例化服务对像
-	rpc.Register(ms)                 //注册这个服务
-	fmt.Println("启动服务...")
-	var address, _ = net.ResolveTCPAddr("tcp", "127.0.0.1:1234") //定义TCP的服务承载地址
-	listener, err := net.ListenTCP("tcp", address)               //监听TCP连接
+	var ms = new(common.MathService)
+	rpc.Register(ms)
+	fmt.Println("start service...")
+	var address, _ = net.ResolveTCPAddr("tcp", "127.0.0.1:1234")
+	listener, err := net.ListenTCP("tcp", address)
 	if err != nil {
-		fmt.Println("启动失败！", err)
+		fmt.Println("start failed:", err)
 	}
 	for {
-		conn, err := listener.Accept() //如果接受到连接
+		conn, err := listener.Accept()
 		if err != nil {
 			continue
 		}
-		fmt.Println("接收到一个调用请求...")
-		rpc.ServeConn(conn) //让此rpc绑定到该Tcp连接上。
+		fmt.Println("receive a request...")
+		rpc.ServeConn(conn)
 	}
-	fmt.Println("服务已停止!")
+	fmt.Println("terminated!")
 }

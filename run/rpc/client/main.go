@@ -2,13 +2,21 @@ package main
 
 import (
 	"fmt"
+	"good-chain/rpc/common"
 
 	HttpGoodRpc "../../../rpc/http"
-	// TcpGoodRpc "../../../rpc/tcp"
 )
 
 func main() {
-	fmt.Printf("HttpGoodRpc.Client()\n")
+	var args = new(common.Args)
+	args.Data = []string{"1", "2", "3", "4", "5"}
+	var result string
 
-	HttpGoodRpc.Client()
+	var method = "ChainService.CreateBlock"
+
+	c, _ := HttpGoodRpc.NewClient("tcp", "127.0.0.1:1234")
+
+	result, _ = c.Call(method, args)
+
+	fmt.Printf("result: %v\n", result)
 }

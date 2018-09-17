@@ -2,21 +2,27 @@ package rpc
 
 import (
 	"fmt"
+	"log"
+	"net"
 	"net/http"
 	"net/rpc"
 
 	"../common"
 )
 
+// Server ...
+// run a http server,
 func Server() {
 	port := ":1234"
-	var ms = new(common.MathService)
-	rpc.Register(ms)
-	rpc.HandleHTTP() //将Rpc绑定到HTTP协议上。
-	fmt.Println("listening port "+port)
-	err := http.ListenAndServe(port, nil)
-	if err != nil {
-		fmt.Println(err.Error())
+	ChainService := new(common.ChainService)
+	rpc.Register(ChainService)
+	rpc.HandleHTTP()
+	l, e := net.Listen("tcp", port)
+	if e != nil {
+		log.Fatal("listen error:", e)
 	}
-	fmt.Println("服务已停止!")
+	// go http.Serve(l, nil)
+	http.Serve(l, nil)
+
+	fmt.Println("terminated!")
 }
