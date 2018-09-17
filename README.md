@@ -7,24 +7,20 @@ an experimental blockchain for public benefits.
 - reference chain structure: `ethereum`
 - db: `leveldb`
 - communication:  `rpc`
+- dependency manager: `dep`
 
 ## Third Party Library
 
-> export PATH=~/go/bin:$PATH
+- `dep`
 
-- `glide`
+    > go get -u github.com/golang/dep/cmd/dep
 
-    > curl https://glide.sh/get | sh
-
-    or
-
-    > sudo apt install golang-glide
+    > dep ensure
 
 - `leveldb`
 
     > go get -u github.com/syndtr/goleveldb/leveldb
 
+- `install dependencies`
 
-fetch vendor
-
-> glide install
+    > dep ensure
