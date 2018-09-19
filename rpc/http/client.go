@@ -3,6 +3,8 @@ package rpc
 import (
 	"fmt"
 	"net/rpc"
+
+	"github.com/fatih/color"
 )
 
 // HTTPClient ...
@@ -14,14 +16,18 @@ type HTTPClient struct {
 
 // Call ...
 // call a method from server
-func (c *HTTPClient) Call(m string, args interface{}) (string, error) {
+func (c *HTTPClient) Call(method string, args interface{}) (string, error) {
 	fmt.Println("rpc.HTTPClient.Call()")
 	result := ""
 
-	err := c.client.Call(m, args, &result)
+	err := c.client.Call(method, args, &result)
 	if err != nil {
+		// You can mix up parameters
+		color.Set(color.FgRed)
 		fmt.Println("call failed: ", err)
+		color.Unset()
 	}
+
 	return result, err
 }
 

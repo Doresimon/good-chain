@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 
-	HttpGoodRpc "../../../rpc/http"
-	// TcpGoodRpc "../../../rpc/tcp"
+	HttpGoodRpc "good-chain/rpc/http"
 )
 
 func main() {

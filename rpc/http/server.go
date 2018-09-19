@@ -2,19 +2,18 @@ package rpc
 
 import (
 	"fmt"
+	"good-chain/rpc/common"
 	"log"
 	"net"
 	"net/http"
 	"net/rpc"
-
-	"../common"
 )
 
 // Server ...
 // run a http server,
 func Server() {
 	port := ":1234"
-	ChainService := new(common.ChainService)
+	ChainService := common.NewChainService()
 	rpc.Register(ChainService)
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", port)
