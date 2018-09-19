@@ -2,22 +2,23 @@ package chain
 
 import (
 	"encoding/json"
-	"fmt"
+	"good-chain/console"
 	"io/ioutil"
 	"math/big"
 )
 
-type ChainConfig struct {
+// Config ...
+type Config struct {
 	Version uint16   `json:"version"`
 	UID     *big.Int `json:"uid"`
 	Name    string   `json:"name"`
 }
 
-var defaultConfig *ChainConfig
+var defaultConfig *Config
 var defaultPath string
 
 func init() {
-	defaultConfig = new(ChainConfig)
+	defaultConfig = new(Config)
 	defaultConfig.Name = "default chain -. -"
 	defaultConfig.UID = big.NewInt(0)
 	defaultConfig.Version = 0x1000
@@ -25,20 +26,21 @@ func init() {
 	defaultPath = "./chain.config"
 }
 
-func (this *ChainConfig) read(path string) {
-	fmt.Printf("ChainConfig.read(%s)\n", path)
+func (this *Config) read(path string) {
+	console.Dev("Config.read(" + path + ")")
 
 	dat, err := ioutil.ReadFile(path)
-	config := new(ChainConfig)
+	config := new(Config)
 
 	if err != nil {
 		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
 		config = defaultConfig
 
-		fmt.Printf("Create new %s file \n", path)
+		console.Info("Create new " + path + " file")
 		ioutil.WriteFile(path, data, 0777)
 	} else {
-		fmt.Printf("Read from %s file \n", path)
+
+		console.Info("Read from " + path + " file")
 		_ = json.Unmarshal(dat, config)
 	}
 
@@ -46,30 +48,24 @@ func (this *ChainConfig) read(path string) {
 	this.UID = config.UID
 }
 
-func (this *ChainConfig) readDefault() {
-	fmt.Println("ChainConfig.readDefault()")
+func (this *Config) readDefault() {
+	console.Dev("Config.readDefault()")
 
 	dat, err := ioutil.ReadFile(defaultPath)
-	config := new(ChainConfig)
+	config := new(Config)
 
 	if err != nil {
 		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
 		config = defaultConfig
 
-		fmt.Println("Create new chain.config file")
+		console.Info("Create new chain.config file")
 
 		ioutil.WriteFile(defaultPath, data, 0777)
 	} else {
-		fmt.Println("Read from chain.config file")
+		console.Info("Read from chain.config file")
 		_ = json.Unmarshal(dat, config)
 	}
 
 	this.Name = config.Name
 	this.UID = config.UID
-}
-
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
 }
