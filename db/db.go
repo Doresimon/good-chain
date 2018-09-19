@@ -1,26 +1,28 @@
 package db
 
 import (
-	"fmt"
-
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
-func main() {
-	// The returned DB instance is safe for concurrent use. Which mean that all
-	// DB's methods may be called concurrently from multiple goroutine.
-	db, _ := leveldb.OpenFile("./LEVELDB/chain", nil)
-	defer db.Close()
+type Operator struct {
+	db   *leveldb.DB
+	Path string
+}
 
-	_ = db.Put([]byte("0"), []byte("v"), nil)
-	_ = db.Put([]byte("1"), []byte("v"), nil)
-	_ = db.Put([]byte("2"), []byte("vv"), nil)
-	_ = db.Put([]byte("3"), []byte("vvv"), nil)
-	_ = db.Put([]byte("4"), []byte("vvvv"), nil)
+func (this *Operator) Open() {
+	this.db, _ = leveldb.OpenFile(this.Path, nil)
+}
 
-	data, _ := db.Get([]byte("4"), nil)
+func (this *Operator) Read(key []byte) []byte {
+	data, _ := this.db.Get(key, nil)
+	return data
+}
 
-	var v = string(data)
+func (this *Operator) Write(key []byte, value []byte) error {
+	err := this.db.Put(key, value, nil)
+	return err
+}
 
-	fmt.Println(v)
+func (this *Operator) Close() error {
+	return this.db.Close()
 }
