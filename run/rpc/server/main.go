@@ -1,13 +1,12 @@
 package main
 
 import (
-	"fmt"
-
+	"good-chain/console"
 	HttpGoodRpc "good-chain/rpc/http"
 )
 
 func main() {
-	fmt.Printf("HttpGoodRpc.Server()\n")
+	console.Info("HttpGoodRpc.Server()")
 
 	HttpGoodRpc.Server()
 }
