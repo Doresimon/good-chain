@@ -1,8 +1,9 @@
 package main
 
 import (
-	"crypto"
+	"crypto/ecdsa"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/hex"
 	"good-chain/console"
 	C "good-chain/crypto"
@@ -16,12 +17,12 @@ import (
 
 func main() {
 	CL()
-	CL()
-	CL()
-	CL()
-	CL()
-	CL()
-	CL()
+	// CL()
+	// CL()
+	// CL()
+	// CL()
+	// CL()
+	// CL()
 	GP()
 }
 
@@ -38,13 +39,16 @@ func CL() {
 	E.Check("ecdsa.GenerateKey", err)
 	pk := sk.S.PublicKey
 	pkHex := hex.EncodeToString(C.Marshal(pk))
-	sig, err := sk.S.Sign(rand.Reader, []byte(strings.Join(args.Data, ",")), crypto.SHA256)
-	sigHex := hex.EncodeToString(sig)
+
+	h := sha256.Sum256([]byte(strings.Join(args.Data[0:2], ",")))
+	r, s, err := ecdsa.Sign(rand.Reader, sk.S, h[:])
+	sig := C.NewSignature(r, s, h[:])
+	sigstr, _ := sig.Marshal()
 
 	args.Data[0] = pkHex
 	args.Data[1] = strconv.FormatInt(1, 10)
 	args.Data[2] = "hello WORLD"
-	args.Data[3] = sigHex
+	args.Data[3] = string(sigstr)
 
 	var method = "ChainService.CreateLog"
 

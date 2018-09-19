@@ -4,6 +4,8 @@ import (
 	"crypto/ecdsa"
 	"crypto/elliptic"
 	"crypto/rand"
+	"encoding/json"
+	"math/big"
 )
 
 type Secret struct {
@@ -24,3 +26,22 @@ func Marshal(pk ecdsa.PublicKey) []byte {
 // func UnMarshal(pk []byte) []byte {
 // 	return elliptic.Unmarshal(pk)
 // }
+
+type Signature struct {
+	H []byte  `json:"hash"`
+	R big.Int `json:"r"`
+	S big.Int `json:"s"`
+}
+
+func NewSignature(r, s *big.Int, h []byte) *Signature {
+	sig := new(Signature)
+	sig.R = *r
+	sig.S = *s
+	sig.H = h
+
+	return sig
+}
+
+func (this *Signature) Marshal() ([]byte, error) {
+	return json.Marshal(this)
+}
