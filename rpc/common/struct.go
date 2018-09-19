@@ -47,8 +47,9 @@ func (cs *ChainService) CreateLog(args *Args, result *string) error {
 	s := args.Data[0]
 	sBN := args.Data[1]
 	m := args.Data[2]
+	sig := args.Data[3]
 
-	L := chain.NewLog(s, sBN, m)
+	L := chain.NewLog(s, sBN, m, sig)
 
 	cs.b.AddLog(L)
 
