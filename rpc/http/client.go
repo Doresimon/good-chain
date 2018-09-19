@@ -1,10 +1,9 @@
 package rpc
 
 import (
-	"fmt"
+	"good-chain/console"
+	ER "good-chain/error"
 	"net/rpc"
-
-	"github.com/fatih/color"
 )
 
 // HTTPClient ...
@@ -17,16 +16,11 @@ type HTTPClient struct {
 // Call ...
 // call a method from server
 func (c *HTTPClient) Call(method string, args interface{}) (string, error) {
-	fmt.Println("rpc.HTTPClient.Call()")
+	console.Dev("rpc.HTTPClient.Call()")
 	result := ""
 
 	err := c.client.Call(method, args, &result)
-	if err != nil {
-		// You can mix up parameters
-		color.Set(color.FgRed)
-		fmt.Println("call failed: ", err)
-		color.Unset()
-	}
+	ER.Check("call failed", err)
 
 	return result, err
 }
@@ -34,7 +28,7 @@ func (c *HTTPClient) Call(method string, args interface{}) (string, error) {
 // NewClient ...
 // create a new Http Client
 func NewClient(n string, a string) (*HTTPClient, error) {
-	fmt.Println("rpc.NewClient()")
+	console.Dev("rpc.NewClient()")
 
 	var err error
 
@@ -42,10 +36,7 @@ func NewClient(n string, a string) (*HTTPClient, error) {
 	c.network = n
 	c.address = a
 	c.client, err = rpc.DialHTTP(c.network, c.address)
-
-	if err != nil {
-		fmt.Println("dail failed: ", err)
-	}
+	ER.Check("dial failed", err)
 
 	return c, err
 }

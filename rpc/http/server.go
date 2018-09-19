@@ -1,9 +1,9 @@
 package rpc
 
 import (
-	"fmt"
+	"good-chain/console"
+	ER "good-chain/error"
 	"good-chain/rpc/common"
-	"log"
 	"net"
 	"net/http"
 	"net/rpc"
@@ -17,11 +17,9 @@ func Server() {
 	rpc.Register(ChainService)
 	rpc.HandleHTTP()
 	l, e := net.Listen("tcp", port)
-	if e != nil {
-		log.Fatal("listen error:", e)
-	}
+	ER.Check("net.Listen() failed", e)
 	// go http.Serve(l, nil)
 	http.Serve(l, nil)
 
-	fmt.Println("terminated!")
+	console.Dev("terminated!")
 }
