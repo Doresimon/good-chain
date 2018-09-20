@@ -19,8 +19,8 @@ type Args struct {
 // ChainService ...
 type ChainService struct {
 	I int
-	c *chain.Chain
-	b *chain.Block
+	C *chain.Chain
+	B *chain.Block
 }
 
 // HexMessage ...
@@ -83,7 +83,7 @@ func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
 		console.Bingo("Signature verify success")
 	}
 
-	cs.b.AddLog(L)
+	cs.B.AddLog(L)
 
 	Ls, _ := json.Marshal(L)
 
@@ -94,7 +94,7 @@ func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
 // GetPool ...
 func (cs *ChainService) GetPool(args *Args, result *string) error {
 	console.Dev("ChainService.GetPool()")
-	B, err := json.MarshalIndent(cs.b, "", "\t")
+	B, err := json.MarshalIndent(cs.B, "", "\t")
 
 	*result = string(B)
 	return err
@@ -102,21 +102,12 @@ func (cs *ChainService) GetPool(args *Args, result *string) error {
 
 // GetChain ...
 func (cs *ChainService) GetChain() *chain.Chain {
-	return cs.c
+	return cs.C
 }
 
 // NewChainService ...
 func NewChainService() *ChainService {
 	console.Dev("NewChainService()")
 	CS := new(ChainService)
-
-	path := "./chain.config"
-
-	CS.c = new(chain.Chain)
-	CS.c.Genesis(path)
-	CS.c.I = 0
-
-	CS.b = chain.NewBlock(CS.c.BN())
-
 	return CS
 }
