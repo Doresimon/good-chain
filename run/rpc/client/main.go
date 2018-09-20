@@ -15,14 +15,15 @@ import (
 )
 
 func main() {
+
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
 	NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	GetPool()
+	// GetPool()
 }
 
 func NewMessage() {
@@ -64,7 +65,10 @@ func NewMessage() {
 		return
 	}
 
-	result, _ = c.Call(method, args)
+	for i := 0; i < 10000; i++ {
+
+		result, _ = c.Call(method, args)
+	}
 
 	console.Info("result:" + result)
 }

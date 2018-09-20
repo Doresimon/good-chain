@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"good-chain/chain"
 	"good-chain/console"
+	"strconv"
 )
 
 // Args ...
@@ -17,6 +18,7 @@ type Args struct {
 
 // ChainService ...
 type ChainService struct {
+	I int
 	c *chain.Chain
 	b *chain.Block
 }
@@ -67,7 +69,8 @@ func (cs *ChainService) CreateBlock(args *Args, result *string) error {
 }
 
 func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
-	console.Dev("ChainService.NewLog()")
+	cs.I++
+	console.Dev("ChainService.NewLog()" + strconv.Itoa(cs.I))
 
 	L := args.ToLog()
 
@@ -97,6 +100,11 @@ func (cs *ChainService) GetPool(args *Args, result *string) error {
 	return err
 }
 
+// GetChain ...
+func (cs *ChainService) GetChain() *chain.Chain {
+	return cs.c
+}
+
 // NewChainService ...
 func NewChainService() *ChainService {
 	console.Dev("NewChainService()")
@@ -106,6 +114,7 @@ func NewChainService() *ChainService {
 
 	CS.c = new(chain.Chain)
 	CS.c.Genesis(path)
+	CS.c.I = 0
 
 	CS.b = chain.NewBlock(CS.c.BN())
 

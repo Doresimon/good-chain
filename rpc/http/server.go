@@ -14,10 +14,17 @@ import (
 func Server() {
 	port := ":1234"
 	ChainService := common.NewChainService()
+	ChainService.I = 0
+	c := ChainService.GetChain()
+
+	c.RunTicker()
+
 	rpc.Register(ChainService)
 	rpc.HandleHTTP()
+
 	l, e := net.Listen("tcp", port)
 	ER.Check("net.Listen() failed", e)
+
 	// go http.Serve(l, nil)
 	http.Serve(l, nil)
 

@@ -17,6 +17,7 @@ const (
 )
 
 type Chain struct {
+	I          int
 	config     *Config
 	uid        *big.Int
 	blockNum   uint64
@@ -62,7 +63,6 @@ func (this *Chain) RunTicker() {
 	go func() {
 		for _ = range this.tiktok.C {
 			console.Info("ticked at " + time.Now().UTC().Format(time.RFC3339))
-
 		}
 	}()
 }
