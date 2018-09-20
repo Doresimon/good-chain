@@ -5,10 +5,12 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
+	"fmt"
 	"good-chain/console"
 	C "good-chain/crypto"
 	E "good-chain/error"
 	"good-chain/rpc/common"
+	"os"
 	"strconv"
 
 	HttpGoodRpc "good-chain/rpc/http"
@@ -16,14 +18,23 @@ import (
 
 func main() {
 
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	// NewMessage()
-	NewMessage()
-	// GetPool()
+	argsWithProg := os.Args
+
+	fmt.Println(argsWithProg)
+
+	switch argsWithProg[1] {
+	case "new":
+		NewMessage()
+		break
+	case "getpool":
+		GetPool()
+		break
+	case "getblock":
+		GetBlock(argsWithProg[2])
+		break
+	default:
+		GetPool()
+	}
 }
 
 func NewMessage() {
@@ -65,10 +76,11 @@ func NewMessage() {
 		return
 	}
 
-	for i := 0; i < 10000; i++ {
+	// for i := 0; i < 10000; i++ {
 
-		result, _ = c.Call(method, args)
-	}
+	// 	result, _ = c.Call(method, args)
+	// }
+	result, _ = c.Call(method, args)
 
 	console.Info("result:" + result)
 }
@@ -88,6 +100,27 @@ func GetPool() {
 	}
 
 	result, _ = c.Call(method, args)
+
+	console.Info("result:" + result)
+}
+
+func GetBlock(arg string) {
+	BN, err := strconv.Atoi(arg)
+
+	E.Check("argument is wrong", err)
+
+	var result string
+
+	var method = "ChainService.GetBlock"
+
+	c, err := HttpGoodRpc.NewClient("tcp", "127.0.0.1:1234")
+
+	if err != nil {
+		console.Error("HttpGoodRpc.NewClient()")
+		return
+	}
+
+	result, _ = c.Call(method, uint64(BN))
 
 	console.Info("result:" + result)
 }

@@ -11,9 +11,12 @@ func (this *Block) AddLog(L *Log) error {
 	return nil
 }
 
+func (this *Block) Clear() {
+	this.Logs = make([]Log, 0, 0)
+}
+
 func NewBlock(BN uint64) *Block {
 	B := new(Block)
-	B.BN = BN
 
 	B.Logs = make([]Log, 0, 0)
 
