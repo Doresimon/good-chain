@@ -5,6 +5,7 @@ import (
 	"good-chain/console"
 	"good-chain/db"
 	"math/big"
+	"strconv"
 	"time"
 )
 
@@ -42,14 +43,17 @@ func (this *Chain) Genesis(path string) {
 }
 
 func (this *Chain) WriteBlock(B *Block) {
+	console.Bingo("WriteBlock " + strconv.FormatUint(this.blockNum, 16))
 	B.BN = this.blockNum
 	data, _ := json.Marshal(B)
-	this.db.Write([]byte(string(this.blockNum)), data)
+	this.db.Write([]byte(strconv.FormatUint(this.blockNum, 16)), data)
+	this.blockNum++
+	B.Clear()
 }
 
 func (this *Chain) ReadBlock(BN uint64) *Block {
 	B := new(Block)
-	data := this.db.Read([]byte(string(BN)))
+	data := this.db.Read([]byte(strconv.FormatUint(BN, 16)))
 	json.Unmarshal(data, B)
 	return B
 }
@@ -58,11 +62,12 @@ func (this *Chain) BN() uint64 {
 	return this.blockNum
 }
 
-func (this *Chain) RunTicker() {
-	this.tiktok = time.NewTicker(time.Second * 1)
+func (this *Chain) RunTicker(B *Block) {
+	this.tiktok = time.NewTicker(time.Second * 10)
 	go func() {
 		for _ = range this.tiktok.C {
 			console.Info("ticked at " + time.Now().UTC().Format(time.RFC3339))
+			this.WriteBlock(B)
 		}
 	}()
 }

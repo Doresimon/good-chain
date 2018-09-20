@@ -27,7 +27,7 @@ func Server() {
 
 	ChainService.B = chain.NewBlock(C.BN())
 
-	C.RunTicker()
+	C.RunTicker(ChainService.B)
 
 	rpc.Register(ChainService)
 	rpc.HandleHTTP()
