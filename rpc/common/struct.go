@@ -100,10 +100,22 @@ func (cs *ChainService) GetPool(args *Args, result *string) error {
 	return err
 }
 
-// GetChain ...
-func (cs *ChainService) GetChain() *chain.Chain {
-	return cs.C
+// GetPool ...
+func (cs *ChainService) GetBlock(arg uint64, result *string) error {
+	console.Dev("ChainService.GetBlock()")
+
+	B := cs.C.ReadBlock(arg)
+
+	jsonB, err := json.MarshalIndent(B, "", "\t")
+
+	*result = string(jsonB)
+	return err
 }
+
+// GetChain ...
+// func (cs *ChainService) GetChain() *chain.Chain {
+// 	return cs.C
+// }
 
 // NewChainService ...
 func NewChainService() *ChainService {
