@@ -19,8 +19,15 @@ func GenerateKey() (*Secret, error) {
 	return SK, err
 }
 
-func Marshal(pk ecdsa.PublicKey) []byte {
-	return elliptic.Marshal(pk.Curve, pk.X, pk.Y)
+func MarshalPK(pk ecdsa.PublicKey) []byte {
+	// return elliptic.Marshal(pk.Curve, pk.X, pk.Y)
+	return elliptic.Marshal(elliptic.P256(), pk.X, pk.Y)
+}
+func UnMarshalPK(b []byte) *ecdsa.PublicKey {
+	pk := new(ecdsa.PublicKey)
+	pk.X, pk.Y = elliptic.Unmarshal(elliptic.P256(), b)
+	pk.Curve = elliptic.P256()
+	return pk
 }
 
 // func UnMarshal(pk []byte) []byte {

@@ -1,38 +1,54 @@
 package chain
 
 import (
+	"crypto/ecdsa"
 	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	C "good-chain/crypto"
+	"math/big"
+	"reflect"
 )
 
 // Log ...
 type Log struct {
-	Sender    string       `json:"sender"`
-	SupposeBN string       `json:"suppose Block number"`
-	Message   string       `json:"message"`
+	Sender    []byte       `json:"sender"`
+	SupposeBN []byte       `json:"suppose Block number"`
+	Message   []byte       `json:"message"`
 	Sig       *C.Signature `json:"signature"`
-	Hash      string       `json:"hash"`
+	Hash      []byte       `json:"hash"`
 }
 
 // NewLog ...
-func NewLog(s string, sBN string, m string, sig string) *Log {
+func NewLog(Sender []byte, SupposeBN []byte, Message []byte, R []byte, S []byte, H []byte) *Log {
 	// check sig
 	// pk, _ := hex.DecodeString(s)
 
 	L := new(Log)
-	L.Sender = s
-	L.SupposeBN = sBN
-	L.Message = m
+	L.Sender = Sender
+	L.SupposeBN = SupposeBN
+	L.Message = Message
 
 	L.Sig = new(C.Signature)
-	json.Unmarshal([]byte(sig), L.Sig)
 
-	_sig, _ := json.Marshal(L.Sig)
+	L.Sig.R = *new(big.Int)
+	L.Sig.S = *new(big.Int)
+	L.Sig.H = H
 
-	sum := sha256.Sum256([]byte(L.Sender + L.SupposeBN + L.Message + string(_sig)))
-	L.Hash = hex.EncodeToString(sum[:])
+	L.Sig.R.SetBytes(R)
+	L.Sig.S.SetBytes(S)
+
+	// sum := sha256.Sum256(L.Sender + L.SupposeBN + L.Message + L.Sig.R + L.Sig.S)
+	sum := sha256.Sum256(append(append(append(append(L.Sender, L.SupposeBN...), L.Message...), R...), S...))
+	L.Hash = sum[:]
 
 	return L
+}
+
+func (L *Log) VerifySig() bool {
+	pk := C.UnMarshalPK(L.Sender)
+	hash := sha256.Sum256(append(append(L.Sender, L.SupposeBN...), L.Message...))
+
+	if !reflect.DeepEqual(L.Sig.H, hash[:]) {
+		return false
+	}
+	return ecdsa.Verify(pk, hash[:], &L.Sig.R, &L.Sig.S)
 }

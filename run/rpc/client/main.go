@@ -10,47 +10,52 @@ import (
 	E "good-chain/error"
 	"good-chain/rpc/common"
 	"strconv"
-	"strings"
 
 	HttpGoodRpc "good-chain/rpc/http"
 )
 
 func main() {
-	CL()
-	// CL()
-	// CL()
-	// CL()
-	// CL()
-	// CL()
-	// CL()
-	GP()
+	NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	// NewMessage()
+	GetPool()
 }
 
-func CL() {
-	var args = new(common.Args)
-	args.Data = []string{"[pk]", "[block number]", "message", "[sig]"}
-	// args.Data = []string{"1", "2"}
-	var result string
+func NewMessage() {
+	var args = new(common.HexMessage)
 
-	// sk, err := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	// sk.PublicKey
+	var result string
 
 	sk, err := C.GenerateKey()
 	E.Check("ecdsa.GenerateKey", err)
 	pk := sk.S.PublicKey
-	pkHex := hex.EncodeToString(C.Marshal(pk))
 
-	h := sha256.Sum256([]byte(strings.Join(args.Data[0:2], ",")))
+	bn := int64(1)
+	message := "HELLO WORLD"
+
+	pk_bytes := []byte(C.MarshalPK(pk))
+	bn_bytes := []byte(strconv.FormatInt(bn, 10))
+	message_bytes := []byte(message)
+
+	args.Pk = hex.EncodeToString(pk_bytes)
+	args.SupposeBlockNumber = hex.EncodeToString(bn_bytes)
+	args.Message = hex.EncodeToString(message_bytes)
+
+	h := sha256.Sum256(append(append(pk_bytes, bn_bytes...), message_bytes...))
 	r, s, err := ecdsa.Sign(rand.Reader, sk.S, h[:])
-	sig := C.NewSignature(r, s, h[:])
-	sigstr, _ := sig.Marshal()
+	// sig := C.NewSignature(r, s, h[:])
+	// r.SetUint64(100)
 
-	args.Data[0] = pkHex
-	args.Data[1] = strconv.FormatInt(1, 10)
-	args.Data[2] = "hello WORLD"
-	args.Data[3] = string(sigstr)
+	args.Sig = *new(common.StringSig)
+	args.Sig.R = r.Bytes()
+	args.Sig.S = s.Bytes()
+	args.Sig.H = h[:]
 
-	var method = "ChainService.CreateLog"
+	var method = "ChainService.NewLog"
 
 	c, err := HttpGoodRpc.NewClient("tcp", "127.0.0.1:1234")
 
@@ -64,10 +69,9 @@ func CL() {
 	console.Info("result:" + result)
 }
 
-func GP() {
+func GetPool() {
 	var args = new(common.Args)
 	args.Data = []string{""}
-	// args.Data = []string{"1", "2"}
 	var result string
 
 	var method = "ChainService.GetPool"

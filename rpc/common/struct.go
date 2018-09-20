@@ -1,6 +1,7 @@
 package common
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -20,6 +21,39 @@ type ChainService struct {
 	b *chain.Block
 }
 
+// HexMessage ...
+type HexMessage struct {
+	Pk                 string
+	SupposeBlockNumber string
+	Message            string
+	Sig                StringSig
+}
+
+// HexMessage ...
+type StringSig struct {
+	R []byte
+	S []byte
+	H []byte
+}
+
+// ToLog ...
+// decode hex message to specific structure
+func (this *HexMessage) ToLog() *chain.Log {
+	pk, _ := hex.DecodeString(this.Pk)
+	SupposeBlockNumber, _ := hex.DecodeString(this.SupposeBlockNumber)
+	Message, _ := hex.DecodeString(this.Message)
+	// R,_ := hex.DecodeString(this.Sig.R)
+	// S,_ := hex.DecodeString(this.Sig.S)
+	// H,_ := hex.DecodeString(this.Sig.H)
+	R := this.Sig.R
+	S := this.Sig.S
+	H := this.Sig.H
+
+	L := chain.NewLog(pk, SupposeBlockNumber, Message, R, S, H)
+
+	return L
+}
+
 // CreateBlock ...
 func (cs *ChainService) CreateBlock(args *Args, result *string) error {
 	console.Dev("ChainService.CreateBlock()")
@@ -32,24 +66,19 @@ func (cs *ChainService) CreateBlock(args *Args, result *string) error {
 	return nil
 }
 
-// CreateLog ...
-func (cs *ChainService) CreateLog(args *Args, result *string) error {
-	console.Dev("ChainService.CreateLog()")
+func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
+	console.Dev("ChainService.NewLog()")
 
-	// for s := range args.Data {
-	// 	fmt.Println(s)
-	// }
-	if len(args.Data) < 3 {
-		*result = "[ERROR] not enough arguments"
-		return errors.New("[ERROR] not enough arguments")
+	L := args.ToLog()
+
+	ok := L.VerifySig()
+
+	if !ok {
+		console.Error("Signature verify failed")
+		return errors.New("Signature verify failed")
+	} else {
+		console.Bingo("Signature verify success")
 	}
-
-	s := args.Data[0]
-	sBN := args.Data[1]
-	m := args.Data[2]
-	sig := args.Data[3]
-
-	L := chain.NewLog(s, sBN, m, sig)
 
 	cs.b.AddLog(L)
 

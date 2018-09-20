@@ -2,8 +2,10 @@ package chain
 
 import (
 	"encoding/json"
+	"good-chain/console"
 	"good-chain/db"
 	"math/big"
+	"time"
 )
 
 const (
@@ -20,6 +22,7 @@ type Chain struct {
 	blockNum   uint64
 	blockState byte
 	db         *db.Operator
+	tiktok     *time.Ticker
 }
 
 func (this *Chain) Genesis(path string) {
@@ -52,4 +55,17 @@ func (this *Chain) ReadBlock(BN uint64) *Block {
 
 func (this *Chain) BN() uint64 {
 	return this.blockNum
+}
+
+func (this *Chain) RunTicker() {
+	this.tiktok = time.NewTicker(time.Second * 1)
+	go func() {
+		for _ = range this.tiktok.C {
+			console.Info("ticked at " + time.Now().UTC().Format(time.RFC3339))
+
+		}
+	}()
+}
+func (this *Chain) StopTicker() {
+	this.tiktok.Stop()
 }

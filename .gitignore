@@ -16,3 +16,6 @@ LEVEL
 
 # vendor folder
 vendor/*
+
+# go pkg
+*.lock

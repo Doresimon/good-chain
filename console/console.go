@@ -18,6 +18,12 @@ func Info(info string) {
 	fmt.Printf("[INFO]] %s\n", info)
 }
 
+func Bingo(info string) {
+	color.Set(color.FgGreen)
+	fmt.Printf("[BINGO] %s\n", info)
+	color.Unset()
+}
+
 func Warn(info string) {
 	color.Set(color.FgYellow)
 	fmt.Printf("[WARN]] %s\n", info)
