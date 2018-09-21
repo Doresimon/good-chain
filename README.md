@@ -21,6 +21,10 @@ an experimental blockchain for public benefits.
 
     > go get -u github.com/syndtr/goleveldb/leveldb
 
+- `go-libp2p`
+
+    > go get -u github.com/libp2p/go-libp2p@v6.0.12
+
 - `install dependencies`
 
     > dep ensure
