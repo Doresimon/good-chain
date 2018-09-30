@@ -43,7 +43,8 @@ func (this *Chain) Genesis(path string) {
 }
 
 func (this *Chain) WriteBlock(B *Block) {
-	console.Bingo("WriteBlock " + strconv.FormatUint(this.blockNum, 16))
+	console.Bingo("WriteBlock " + strconv.FormatUint(this.blockNum, 16) + ". TX = " + strconv.FormatUint(uint64(len(B.Logs)), 16))
+
 	B.BN = this.blockNum
 	data, _ := json.Marshal(B)
 	this.db.Write([]byte(strconv.FormatUint(this.blockNum, 16)), data)

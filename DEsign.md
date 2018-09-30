@@ -19,3 +19,24 @@ a block contains some logs that can never be changed
         -- log #0
         -- log #1
         -- ... #N
+
+
+### Crypto
+
+- secret key
+
+    256 bits
+
+- public key
+
+    pk = [sk]*G
+
+    format = hex
+
+- elliptic curve
+
+    P256
+    
+- signature
+
+    ecdsa

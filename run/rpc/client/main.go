@@ -22,6 +22,11 @@ func main() {
 
 	fmt.Println(argsWithProg)
 
+	if len(argsWithProg) < 2 {
+		console.Error("an arg is required")
+		os.Exit(1)
+	}
+
 	switch argsWithProg[1] {
 	case "new":
 		NewMessage()
