@@ -24,6 +24,7 @@
 #   go-tests = true
 #   unused-packages = true
 
+required = ["github.com/libp2p/go-libp2p"]
 
 [[constraint]]
   branch = "master"
