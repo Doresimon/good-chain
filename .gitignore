@@ -19,3 +19,6 @@ vendor/*
 
 # go pkg
 *.lock
+
+# vscode
+.vscode
