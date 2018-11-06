@@ -31,7 +31,6 @@ package main
 import (
 	"bufio"
 	"context"
-	"crypto/rand"
 	"flag"
 	"fmt"
 	"io"
@@ -113,7 +112,7 @@ func writeData(rw *bufio.ReadWriter) {
 
 }
 
-func mmain() {
+func main() {
 	sourcePort := flag.Int("sp", 0, "Source port number")
 	dest := flag.String("d", "", "Destination multiaddr string")
 	help := flag.Bool("help", false, "Display help")
@@ -132,19 +131,19 @@ func mmain() {
 	// If debug is enabled, use a constant random source to generate the peer ID. Only useful for debugging,
 	// off by default. Otherwise, it uses rand.Reader.
 	var r io.Reader
-	if *debug {
-		// Use the port number as the randomness source.
-		// This will always generate the same host ID on multiple executions, if the same port number is used.
-		// Never do this in production code.
-		r = mrand.New(mrand.NewSource(int64(*sourcePort)))
-	} else {
-		r = rand.Reader
-	}
+	// if *debug {
+	// Use the port number as the randomness source.
+	// This will always generate the same host ID on multiple executions, if the same port number is used.
+	// Never do this in production code.
+	r = mrand.New(mrand.NewSource(int64(*sourcePort)))
+	// } else {
+	// 	r = rand.Reader
+	// }
 
 	fmt.Printf("[r]%#v \n", r)
 
 	// Creates a new RSA key pair for this host.
-	prvKey, _, err := crypto.GenerateKeyPairWithReader(crypto.RSA, 2048, r)
+	prvKey, _, err := crypto.GenerateKeyPairWithReader(crypto.Secp256k1, 512, r)
 
 	fmt.Printf("[prvKey]%#v \n", prvKey)
 
