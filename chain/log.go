@@ -3,9 +3,10 @@ package chain
 import (
 	"crypto/ecdsa"
 	"crypto/sha256"
-	C "good-chain/crypto"
 	"math/big"
 	"reflect"
+
+	C "github.com/Doresimon/good-chain/crypto"
 )
 
 // Log ...

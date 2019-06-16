@@ -3,13 +3,11 @@ package rpc
 import (
 	"fmt"
 	"net/rpc"
-
-	"../common"
 )
 
 func Client() {
-	var args = common.Args{40, 3}
-	var result = common.Result{}
+	var args = Arg{40, 3}
+	var result = Result{}
 
 	var client, err = rpc.Dial("tcp", "127.0.0.1:1234")
 	if err != nil {
@@ -20,5 +18,5 @@ func Client() {
 	if err != nil {
 		fmt.Println("call failed:", err)
 	}
-	fmt.Println("call result:", result.Value)
+	fmt.Println("call result:", result.data)
 }

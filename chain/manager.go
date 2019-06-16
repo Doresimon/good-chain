@@ -2,11 +2,12 @@ package chain
 
 import (
 	"encoding/json"
-	"good-chain/console"
-	"good-chain/db"
 	"math/big"
 	"strconv"
 	"time"
+
+	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/db"
 )
 
 const (

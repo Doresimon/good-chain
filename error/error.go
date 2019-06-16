@@ -1,6 +1,6 @@
 package error
 
-import "good-chain/console"
+import "github.com/Doresimon/good-chain/console"
 
 // Check ...
 // check if any error shows up

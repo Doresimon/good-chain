@@ -4,12 +4,26 @@ import (
 	"fmt"
 	"net"
 	"net/rpc"
-
-	"../common"
 )
 
+type Arg struct {
+	x int
+	y int
+}
+type Result struct {
+	data int
+}
+type MathService struct {
+}
+
+func (ms *MathService) Add(args *Arg, ret *Result) {
+	ret.data = args.x + args.y
+
+	return
+}
+
 func Server() {
-	var ms = new(common.MathService)
+	var ms = new(MathService)
 	rpc.Register(ms)
 	fmt.Println("start service...")
 	var address, _ = net.ResolveTCPAddr("tcp", "127.0.0.1:1234")

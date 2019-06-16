@@ -6,14 +6,15 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"good-chain/console"
-	C "good-chain/crypto"
-	E "good-chain/error"
-	"good-chain/rpc/common"
 	"os"
 	"strconv"
 
-	HttpGoodRpc "good-chain/rpc/http"
+	"github.com/Doresimon/good-chain/console"
+	C "github.com/Doresimon/good-chain/crypto"
+	E "github.com/Doresimon/good-chain/error"
+	"github.com/Doresimon/good-chain/rpc/common"
+
+	HttpGoodRpc "github.com/Doresimon/good-chain/rpc/http"
 )
 
 func main() {

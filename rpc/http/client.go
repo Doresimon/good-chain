@@ -1,9 +1,10 @@
 package rpc
 
 import (
-	"good-chain/console"
-	ER "good-chain/error"
 	"net/rpc"
+
+	"github.com/Doresimon/good-chain/console"
+	ER "github.com/Doresimon/good-chain/error"
 )
 
 // HTTPClient ...

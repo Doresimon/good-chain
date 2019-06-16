@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"good-chain/chain"
-	"good-chain/console"
 	"strconv"
+
+	"github.com/Doresimon/good-chain/chain"
+	"github.com/Doresimon/good-chain/console"
 )
 
 // Args ...

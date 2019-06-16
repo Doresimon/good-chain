@@ -1,13 +1,14 @@
 package rpc
 
 import (
-	"good-chain/chain"
-	"good-chain/console"
-	ER "good-chain/error"
-	"good-chain/rpc/common"
 	"net"
 	"net/http"
 	"net/rpc"
+
+	"github.com/Doresimon/good-chain/chain"
+	"github.com/Doresimon/good-chain/console"
+	ER "github.com/Doresimon/good-chain/error"
+	"github.com/Doresimon/good-chain/rpc/common"
 )
 
 // Server ...

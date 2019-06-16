@@ -2,9 +2,10 @@ package chain
 
 import (
 	"encoding/json"
-	"good-chain/console"
 	"io/ioutil"
 	"math/big"
+
+	"github.com/Doresimon/good-chain/console"
 )
 
 // Config ...

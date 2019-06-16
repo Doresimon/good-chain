@@ -1,8 +1,8 @@
 package main
 
 import (
-	"good-chain/console"
-	HttpGoodRpc "good-chain/rpc/http"
+	"github.com/Doresimon/good-chain/console"
+	HttpGoodRpc "github.com/Doresimon/good-chain/rpc/http"
 )
 
 func main() {
