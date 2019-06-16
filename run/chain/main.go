@@ -1,6 +1,6 @@
 package main
 
-import "github.com/Doresimon/good-chain"
+import chain "github.com/Doresimon/good-chain/chain"
 
 func main() {
 	C := new(chain.Chain)

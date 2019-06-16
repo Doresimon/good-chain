@@ -9,10 +9,10 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/Doresimon/good-chain/console"
+	console "github.com/Doresimon/good-chain/console"
 	C "github.com/Doresimon/good-chain/crypto"
 	E "github.com/Doresimon/good-chain/error"
-	"github.com/Doresimon/good-chain/rpc/common"
+	common "github.com/Doresimon/good-chain/rpc/common"
 
 	HttpGoodRpc "github.com/Doresimon/good-chain/rpc/http"
 )
