@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/Doresimon/good-chain/console"
-	"github.com/Doresimon/good-chain/db"
+	"github.com/Doresimon/good-chain/store"
 )
 
 const (
@@ -24,7 +24,7 @@ type Chain struct {
 	uid        *big.Int
 	blockNum   uint64
 	blockState byte
-	db         *db.Operator
+	store      *store.Operator
 	tiktok     *time.Ticker
 }
 
@@ -38,9 +38,9 @@ func (this *Chain) Genesis(path string) {
 	this.blockNum = 0
 	this.blockState = BLOCKSTATE_BABY
 
-	this.db = new(db.Operator)
-	this.db.Path = "./LEVEL/" + this.config.Name
-	this.db.Open()
+	this.store = new(store.Operator)
+	this.store.Path = "./LEVEL/" + this.config.Name
+	this.store.Open()
 }
 
 func (this *Chain) WriteBlock(B *Block) {
@@ -48,14 +48,14 @@ func (this *Chain) WriteBlock(B *Block) {
 
 	B.BN = this.blockNum
 	data, _ := json.Marshal(B)
-	this.db.Write([]byte(strconv.FormatUint(this.blockNum, 16)), data)
+	this.store.Write([]byte(strconv.FormatUint(this.blockNum, 16)), data)
 	this.blockNum++
 	B.Clear()
 }
 
 func (this *Chain) ReadBlock(BN uint64) *Block {
 	B := new(Block)
-	data := this.db.Read([]byte(strconv.FormatUint(BN, 16)))
+	data := this.store.Read([]byte(strconv.FormatUint(BN, 16)))
 	json.Unmarshal(data, B)
 	return B
 }

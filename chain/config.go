@@ -24,7 +24,7 @@ func init() {
 	defaultConfig.UID = big.NewInt(0)
 	defaultConfig.Version = 0x1000
 
-	defaultPath = "./chain.config"
+	defaultPath = "./chain.json"
 }
 
 func (this *Config) read(path string) {
