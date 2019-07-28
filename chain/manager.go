@@ -2,6 +2,7 @@ package chain
 
 import (
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"strconv"
 	"time"
@@ -18,61 +19,75 @@ const (
 	BLOCKSTATE_DEAD     = 0x04
 )
 
+// Chain TODO
 type Chain struct {
-	I          int
-	config     *Config
-	uid        *big.Int
-	blockNum   uint64
-	blockState byte
-	store      *store.Operator
-	tiktok     *time.Ticker
+	I           int
+	config      *Config
+	uid         *big.Int
+	blockNumber uint64
+	blockState  byte
+	store       *store.Operator
+	tiktok      *time.Ticker
+	tiktokOver  chan bool
 }
 
-func (this *Chain) Genesis(path string) {
+// Genesis TODO
+func (c *Chain) Genesis(path string) {
 	config := new(Config)
 	config.read(path)
 	// config.readDefault()
 
-	this.config = config
+	c.config = config
 
-	this.blockNum = 0
-	this.blockState = BLOCKSTATE_BABY
+	c.blockNumber = 0
+	c.blockState = BLOCKSTATE_BABY
 
-	this.store = new(store.Operator)
-	this.store.Path = "./LEVEL/" + this.config.Name
-	this.store.Open()
+	c.store = new(store.Operator)
+	c.store.Path = "./LEVEL/" + c.config.Name
+	c.store.Open()
 }
 
-func (this *Chain) WriteBlock(B *Block) {
-	console.Bingo("WriteBlock " + strconv.FormatUint(this.blockNum, 16) + ". TX = " + strconv.FormatUint(uint64(len(B.Logs)), 16))
+// WriteBlock TODO
+func (c *Chain) WriteBlock(block *Block) {
+	console.Bingo(fmt.Sprintf("WriteBlock block.num=0x%x tx.num=%d", c.blockNumber, len(block.Logs)))
 
-	B.BN = this.blockNum
-	data, _ := json.Marshal(B)
-	this.store.Write([]byte(strconv.FormatUint(this.blockNum, 16)), data)
-	this.blockNum++
-	B.Clear()
+	block.Number = c.blockNumber
+	data, _ := json.Marshal(block)
+	c.store.Write([]byte(strconv.FormatUint(c.blockNumber, 16)), data)
+	c.blockNumber++
+	block.Clear()
 }
 
-func (this *Chain) ReadBlock(BN uint64) *Block {
-	B := new(Block)
-	data := this.store.Read([]byte(strconv.FormatUint(BN, 16)))
-	json.Unmarshal(data, B)
-	return B
+// ReadBlock TODO
+func (c *Chain) ReadBlock(blockNumber uint64) *Block {
+	block := new(Block)
+	data := c.store.Read([]byte(strconv.FormatUint(blockNumber, 16)))
+	json.Unmarshal(data, block)
+	return block
 }
 
-func (this *Chain) BN() uint64 {
-	return this.blockNum
+// BN TODO
+func (c *Chain) BN() uint64 {
+	return c.blockNumber
 }
 
-func (this *Chain) RunTicker(B *Block) {
-	this.tiktok = time.NewTicker(time.Second * 10)
+// RunTicker TODO
+func (c *Chain) RunTicker(B *Block) {
+	c.tiktok = time.NewTicker(time.Millisecond * 1)
 	go func() {
-		for _ = range this.tiktok.C {
-			console.Info("ticked at " + time.Now().UTC().Format(time.RFC3339))
-			this.WriteBlock(B)
+		for {
+			select {
+			case <-c.tiktok.C:
+				c.WriteBlock(B)
+			case <-c.tiktokOver:
+				return
+			}
 		}
 	}()
 }
-func (this *Chain) StopTicker() {
-	this.tiktok.Stop()
+
+// StopTicker TODO
+func (c *Chain) StopTicker() {
+	c.tiktokOver <- true
+	c.tiktok.Stop()
 }

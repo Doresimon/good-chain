@@ -6,16 +6,19 @@ import (
 	"math/big"
 	"reflect"
 
-	C "github.com/Doresimon/good-chain/crypto"
+	Gcrypto "github.com/Doresimon/good-chain/crypto"
+
+	Gtypes "github.com/Doresimon/good-chain/types"
 )
 
 // Log ...
 type Log struct {
-	Sender    []byte       `json:"sender"`
-	SupposeBN []byte       `json:"suppose Block number"`
-	Message   []byte       `json:"message"`
-	Sig       *C.Signature `json:"signature"`
-	Hash      []byte       `json:"hash"`
+	Sender    []byte             `json:"sender"`
+	SupposeBN []byte             `json:"suppose Block number"`
+	Message   []byte             `json:"message"`
+	TX        Gtypes.Transaction `json:"transaction"`
+	Sig       *Gcrypto.Signature `json:"signature"`
+	Hash      []byte             `json:"hash"`
 }
 
 // NewLog ...
@@ -28,7 +31,7 @@ func NewLog(Sender []byte, SupposeBN []byte, Message []byte, R []byte, S []byte,
 	L.SupposeBN = SupposeBN
 	L.Message = Message
 
-	L.Sig = new(C.Signature)
+	L.Sig = new(Gcrypto.Signature)
 
 	L.Sig.R = *new(big.Int)
 	L.Sig.S = *new(big.Int)
@@ -44,8 +47,9 @@ func NewLog(Sender []byte, SupposeBN []byte, Message []byte, R []byte, S []byte,
 	return L
 }
 
+// VerifySig ...
 func (L *Log) VerifySig() bool {
-	pk := C.UnMarshalPK(L.Sender)
+	pk := Gcrypto.UnMarshalPK(L.Sender)
 	hash := sha256.Sum256(append(append(L.Sender, L.SupposeBN...), L.Message...))
 
 	if !reflect.DeepEqual(L.Sig.H, hash[:]) {

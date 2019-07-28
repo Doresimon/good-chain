@@ -4,25 +4,30 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 )
 
+// Operator .
 type Operator struct {
 	db   *leveldb.DB
 	Path string
 }
 
-func (this *Operator) Open() {
-	this.db, _ = leveldb.OpenFile(this.Path, nil)
+// Open .
+func (op *Operator) Open() {
+	op.db, _ = leveldb.OpenFile(op.Path, nil)
 }
 
-func (this *Operator) Read(key []byte) []byte {
-	data, _ := this.db.Get(key, nil)
+// Read .
+func (op *Operator) Read(key []byte) []byte {
+	data, _ := op.db.Get(key, nil)
 	return data
 }
 
-func (this *Operator) Write(key []byte, value []byte) error {
-	err := this.db.Put(key, value, nil)
+// Write .
+func (op *Operator) Write(key []byte, value []byte) error {
+	err := op.db.Put(key, value, nil)
 	return err
 }
 
-func (this *Operator) Close() error {
-	return this.db.Close()
+// Close .
+func (op *Operator) Close() error {
+	return op.db.Close()
 }
