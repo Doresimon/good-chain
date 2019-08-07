@@ -10,7 +10,7 @@ import (
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/rpc/common"
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 // AppCommands ...

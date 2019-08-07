@@ -1,7 +1,7 @@
 package main
 
 import (
-	"gopkg.in/urfave/cli.v1"
+	"github.com/urfave/cli"
 )
 
 type config struct {

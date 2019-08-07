@@ -37,3 +37,9 @@ an experimental blockchain for public benefits.
 ## go doc
 
 [![GoDoc](https://godoc.org/github.com/Doresimon/good-chain?status.svg)](https://godoc.org/github.com/Doresimon/good-chain)
+
+## test
+
+```bash
+go test -v
+```
