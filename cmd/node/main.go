@@ -21,5 +21,4 @@ func main() {
 	if err != nil {
 		console.Fatal("error")
 	}
-
 }

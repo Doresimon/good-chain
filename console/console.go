@@ -8,7 +8,6 @@ import (
 )
 
 /* console.Error("!@#$%^&*()") */
-
 func Dev(info string) {
 	color.Set(color.FgCyan)
 	log.Printf("[DEV]   %s\n", info)

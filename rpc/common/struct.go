@@ -49,10 +49,11 @@ func (this *HexMessage) ToLog() *chain.Log {
 	// S,_ := hex.DecodeString(this.Sig.S)
 	// H,_ := hex.DecodeString(this.Sig.H)
 	R := this.Sig.R
-	S := this.Sig.S
-	H := this.Sig.H
+	// S := this.Sig.S
+	// H := this.Sig.H
 
-	L := chain.NewLog(pk, SupposeBlockNumber, Message, R, S, H)
+	// L := chain.NewLog(pk, SupposeBlockNumber, Message, R, S, H)
+	L := chain.NewLog(pk, SupposeBlockNumber, Message, R)
 
 	return L
 }
@@ -75,7 +76,8 @@ func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
 
 	L := args.ToLog()
 
-	ok := L.VerifySig()
+	// ok := L.VerifySig()
+	ok := true
 
 	if !ok {
 		console.Error("Signature verify failed")

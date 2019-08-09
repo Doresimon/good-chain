@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/p2p"
 	HttpGoodRpc "github.com/Doresimon/good-chain/rpc/http"
 
 	"github.com/Doresimon/good-chain/chain"
@@ -17,7 +18,7 @@ import (
 var appCommands = []cli.Command{
 	{
 		Name:        "start",
-		Aliases:     []string{"run"},
+		Aliases:     []string{"run", "chain-node"},
 		Usage:       "start a node",
 		Description: "start a node",
 		Action: func(c *cli.Context) error {
@@ -59,6 +60,17 @@ var appCommands = []cli.Command{
 
 			ch := make(chan int) // block process
 			<-ch
+			return nil
+		},
+	},
+	{
+		Name:        "p2p",
+		Aliases:     []string{"p2p-node"},
+		Usage:       "start a p2p node",
+		Description: "start a p2p node",
+		Action: func(c *cli.Context) error {
+			p2p.NewService()
+
 			return nil
 		},
 	},

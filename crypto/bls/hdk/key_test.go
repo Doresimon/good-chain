@@ -55,6 +55,13 @@ func TestPub2Pub(t *testing.T) {
 		t.Fail()
 		return
 	}
+	// fmt.Printf("childPubKey  = %s\n", childPubKey)
+	// fmt.Printf("childPubKeyMarshal  = %s\n", childPubKey.Marshal())
+	// fmt.Printf("childPubKeyMarshalHex  = %x\n", childPubKey.Marshal())
+
+	// data := []byte("any + old & data")
+	// childPubKeyBase64 := base64.StdEncoding.EncodeToString(childPubKey.Marshal())
+	// fmt.Printf("childPubKeyBase64  = %s\n", childPubKeyBase64)
 
 	if string(childPubKey.Marshal()) != string(childPubKeyX.Marshal()) {
 		fmt.Printf("childPubKey  = %s\n", childPubKey)
