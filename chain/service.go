@@ -10,18 +10,6 @@ import (
 // LogTransferPool is used to transfer data with p2p service
 var LogTransferPool = make(chan *Log, 256)
 
-// Service ...
-type Service struct {
-	C *Chain
-
-	// LogPool   []*Log
-	// BlockPool []*Block
-	LogPool   chan *Log
-	BlockPool chan *Block
-
-	tiktokOver chan interface{}
-}
-
 // NewService ...
 func NewService(c *Chain) *Service {
 	console.Devf("chain.NewService() >> logPoolSize = %d, blockPoolSize = %d", logPoolSize, blockPoolSize)
@@ -35,6 +23,18 @@ func NewService(c *Chain) *Service {
 	go cs.RunTicker()
 
 	return cs
+}
+
+// Service ...
+type Service struct {
+	C *Chain
+
+	// LogPool   []*Log
+	// BlockPool []*Block
+	LogPool   chan *Log
+	BlockPool chan *Block
+
+	tiktokOver chan interface{}
 }
 
 // AddLog add a log to LogPool

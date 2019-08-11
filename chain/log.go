@@ -5,17 +5,6 @@ import (
 	"encoding/json"
 )
 
-// Log ...
-type Log struct {
-	Sender    []byte `json:"sender"`
-	SupposeBN []byte `json:"suppose-block-number"`
-	TX        []byte `json:"transaction"`
-	Sig       []byte `json:"signature"`
-	Hash      []byte `json:"hash"`
-	// Sig       *Gcrypto.Signature `json:"signature"`
-	// Message   []byte             `json:"message"`
-}
-
 // NewLog ...
 func NewLog(sender []byte, bn []byte, tx []byte, sig []byte) *Log {
 	hash := sha256.Sum256(tx)
@@ -28,6 +17,17 @@ func NewLog(sender []byte, bn []byte, tx []byte, sig []byte) *Log {
 	L.Hash = hash[:]
 
 	return L
+}
+
+// Log ...
+type Log struct {
+	Sender    []byte `json:"sender"`
+	SupposeBN []byte `json:"suppose-block-number"`
+	TX        []byte `json:"transaction"`
+	Sig       []byte `json:"signature"`
+	Hash      []byte `json:"hash"`
+	// Sig       *Gcrypto.Signature `json:"signature"`
+	// Message   []byte             `json:"message"`
 }
 
 // Marshal is a wrapper of type Log

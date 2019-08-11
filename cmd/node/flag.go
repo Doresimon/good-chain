@@ -4,7 +4,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-
 // appFlags ...
 var appFlags = []cli.Flag{
 	cli.StringFlag{

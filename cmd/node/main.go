@@ -3,9 +3,8 @@ package main
 import (
 	"os"
 
-	"github.com/urfave/cli"
-
 	"github.com/Doresimon/good-chain/console"
+	"github.com/urfave/cli"
 )
 
 var app = cli.NewApp()
@@ -14,8 +13,6 @@ func main() {
 	console.ShowColors()
 
 	app := App()
-
-	console.Info("start app")
 	err := app.Run(os.Args)
 
 	if err != nil {
