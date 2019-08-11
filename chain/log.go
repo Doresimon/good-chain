@@ -42,6 +42,8 @@ func UnmarshalLog(buf []byte) (*Log, error) {
 	return l, err
 }
 
+// type LogPool chan *Log
+
 // // NewLog ...
 // func NewLog(Sender []byte, SupposeBN []byte, Message []byte, R []byte, S []byte, H []byte) *Log {
 // 	// check sig

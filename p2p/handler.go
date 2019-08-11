@@ -2,22 +2,18 @@ package p2p
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
 	"github.com/Doresimon/good-chain/crypto/coding"
-	"github.com/Doresimon/good-chain/types"
 	net "github.com/libp2p/go-libp2p-core/network"
 )
 
 func handleLog(s net.Stream) {
 	console.Info(fmt.Sprintf("got a new connection, protocol = %s, peer = %s", s.Protocol(), s.Conn().RemoteMultiaddr().String()))
-
-	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
-
 	go func() {
 		for {
 			newMsg, err := ReadOneMessage(rw)
@@ -25,42 +21,28 @@ func handleLog(s net.Stream) {
 				console.Error(err.Error())
 				return
 			}
-			console.Info("new message received")
-			fmt.Printf("msg.Type = %d\n", newMsg.Type)
-			fmt.Printf("msg.Content = %s\n", newMsg.Content)
+			console.Infof("new message received >> msg.Type = %d, msg.Content = %s", newMsg.Type, newMsg.Content)
 
 			l, err := chain.UnmarshalLog(newMsg.Content)
 			if err != nil {
 				console.Error(err.Error())
 				return
 			}
-			tx := new(types.Transaction)
-			err = json.Unmarshal(l.TX, tx)
-			if err != nil {
-				console.Error(err.Error())
-				return
+
+			for i := 0; i < 128; i++ {
+				chain.LogTransferPool <- l // chainInstace will monitor this channel
+
+				time.Sleep(time.Second * 1)
 			}
-
-			fmt.Printf("tx.Type = %s\n", tx.Type)
-			fmt.Printf("tx.Content = %s\n", tx.Content)
-			fmt.Printf("tx.KeyPath = %s\n", tx.KeyPath)
-			fmt.Printf("tx.TimeStamp = %s\n", tx.TimeStamp)
-			fmt.Printf("tx.Nonce = %s\n", tx.Nonce)
-
 		}
 	}()
 }
 
 func handleStream(s net.Stream) {
 	console.Info("Got a new connection!")
-
-	// Create a buffer stream for non blocking read and write.
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
 	go OnReceiveData(rw)
-	// go sendData(rw)
-
-	// stream 's' will stay open until you close it (or the other side closes it).
 }
 
 // OnReceiveData ...

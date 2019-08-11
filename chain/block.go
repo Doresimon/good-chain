@@ -19,9 +19,7 @@ func (block *Block) Clear() {
 
 // NewBlock create a new block instance
 func NewBlock(BN uint64) *Block {
-	B := new(Block)
-
-	B.Logs = make([]Log, 0, 0)
-
-	return B
+	b := new(Block)
+	b.Logs = make([]Log, 0, 0)
+	return b
 }

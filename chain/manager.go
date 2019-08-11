@@ -21,14 +21,22 @@ const (
 
 // Chain TODO
 type Chain struct {
-	I           int
-	config      *Config
-	uid         *big.Int
-	blockNumber uint64
-	blockState  byte
-	store       *store.Operator
-	tiktok      *time.Ticker
-	tiktokOver  chan bool
+	I            int
+	config       *Config
+	uid          *big.Int
+	blockNumber  uint64
+	blockState   byte
+	store        *store.Operator
+	tiktok       *time.Ticker
+	tiktokOver   chan bool
+	pendingBlock *Block
+}
+
+// NewChain create a new chain instacne with config file path
+func NewChain(path string) *Chain {
+	c := new(Chain)
+	c.Genesis(path)
+	return c
 }
 
 // Genesis TODO
@@ -73,7 +81,7 @@ func (c *Chain) BN() uint64 {
 
 // RunTicker TODO
 func (c *Chain) RunTicker(B *Block) {
-	c.tiktok = time.NewTicker(time.Millisecond * 1)
+	c.tiktok = time.NewTicker(time.Millisecond * 1000 * 10)
 	go func() {
 		for {
 			select {

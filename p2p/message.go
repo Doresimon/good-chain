@@ -20,6 +20,14 @@ type Message struct {
 	Content []byte `json:"content"`
 }
 
+// NewMessage create a new message instance
+func NewMessage(t int, c []byte) *Message {
+	m := new(Message)
+	m.Type = t
+	m.Content = c
+	return m
+}
+
 // Serialize makes message as byte slice with length as prefix
 func (m *Message) Serialize() *[]byte {
 	mBytes, err := json.Marshal(m)
@@ -33,14 +41,6 @@ func (m *Message) Serialize() *[]byte {
 	return &buf
 }
 
-// NewMessage create a new message instance
-func NewMessage(t int, c []byte) *Message {
-	m := new(Message)
-	m.Type = t
-	m.Content = c
-	return m
-}
-
 // Serialize makes message as byte slice with length as prefix
 func Serialize(m *Message) []byte {
 	mBytes, err := json.Marshal(m)
@@ -50,8 +50,8 @@ func Serialize(m *Message) []byte {
 
 	buf := coding.Uint32ToBytes(uint32(len(mBytes)))
 
-	console.Info(fmt.Sprintf("msgLen = %d", len(mBytes)))
-	console.Info(fmt.Sprintf("buf[4] = %x", buf))
+	console.Infof("msgLen = %d", len(mBytes))
+	console.Infof("buf[4] = %x", buf)
 	buf = append(buf, mBytes...)
 
 	return buf

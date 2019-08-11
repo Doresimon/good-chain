@@ -4,9 +4,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/big"
+	"time"
 
 	"github.com/Doresimon/good-chain/console"
 )
+
+var blockTime = time.Second * 10
+var logPoolSize = 1024
+var blockPoolSize = 1024
 
 // Config ...
 type Config struct {
@@ -15,15 +20,19 @@ type Config struct {
 	Name    string   `json:"name"`
 }
 
-var defaultConfig Config
-var defaultPath string
+var defaultConfig = Config{
+	Version: 0x1000,
+	UID:     big.NewInt(0),
+	Name:    "default chain -. -",
+}
+var defaultPath = "./chain.json"
 
 func init() {
-	defaultConfig.Name = "default chain -. -"
-	defaultConfig.UID = big.NewInt(0)
-	defaultConfig.Version = 0x1000
+	// defaultConfig.Name = "default chain -. -"
+	// defaultConfig.UID = big.NewInt(0)
+	// defaultConfig.Version = 0x1000
 
-	defaultPath = "./chain.json"
+	// defaultPath = "./chain.json"
 }
 
 func (cfg *Config) read(path string) {

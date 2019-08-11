@@ -74,7 +74,6 @@ func log() {
 	rw := bufio.NewReadWriter(bufio.NewReader(s), bufio.NewWriter(s))
 
 	go func() {
-
 		tx := new(types.Transaction)
 		tx.Type = "create"
 		tx.Content = "the count infomation"
@@ -184,8 +183,8 @@ func readData(rw *bufio.ReadWriter) {
 			return
 		}
 
-		fmt.Printf("Type = %d\n", msg.Type)
-		fmt.Printf("Content = %s\n", msg.Content)
+		fmt.Printf("msg.Type = %d\n", msg.Type)
+		fmt.Printf("msg.Content = %s\n", msg.Content)
 	}
 }
 

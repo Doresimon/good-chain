@@ -68,10 +68,33 @@ var appCommands = []cli.Command{
 		Aliases:     []string{"p2p-node"},
 		Usage:       "start a p2p node",
 		Description: "start a p2p node",
-		Action: func(c *cli.Context) error {
-			p2p.NewService()
+		Action: func(c *cli.Context) error { // read config
+			cfgBuffer, err := ioutil.ReadFile(configFile)
+			if err != nil {
+				console.Fatal(err.Error())
+				return err
+			}
 
-			return nil
+			err = json.Unmarshal(cfgBuffer, &appConfig)
+			if err != nil {
+				console.Fatal(err.Error())
+				return err
+			}
+
+			var nodeService struct {
+				cs *chain.Service
+				ps *p2p.Service
+			}
+
+			path := appConfig.Chain
+			chainInstance := chain.NewChain(path)
+			chainService := chain.NewService(chainInstance)
+			p2pService := p2p.NewService(chainService)
+
+			nodeService.cs = chainService
+			nodeService.ps = p2pService
+
+			select {}
 		},
 	},
 }
