@@ -4,9 +4,14 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"math/big"
+	"time"
 
 	"github.com/Doresimon/good-chain/console"
 )
+
+var blockTime = time.Second * 10
+var logPoolSize = 1024
+var blockPoolSize = 1024
 
 // Config ...
 type Config struct {
@@ -15,23 +20,26 @@ type Config struct {
 	Name    string   `json:"name"`
 }
 
-var defaultConfig *Config
-var defaultPath string
+var defaultConfig = Config{
+	Version: 0x1000,
+	UID:     big.NewInt(0),
+	Name:    "default chain -. -",
+}
+var defaultPath = "./chain.json"
 
 func init() {
-	defaultConfig = new(Config)
-	defaultConfig.Name = "default chain -. -"
-	defaultConfig.UID = big.NewInt(0)
-	defaultConfig.Version = 0x1000
+	// defaultConfig.Name = "default chain -. -"
+	// defaultConfig.UID = big.NewInt(0)
+	// defaultConfig.Version = 0x1000
 
-	defaultPath = "./chain.config"
+	// defaultPath = "./chain.json"
 }
 
-func (this *Config) read(path string) {
+func (cfg *Config) read(path string) {
 	console.Dev("Config.read(" + path + ")")
 
-	dat, err := ioutil.ReadFile(path)
-	config := new(Config)
+	buf, err := ioutil.ReadFile(path)
+	var config Config
 
 	if err != nil {
 		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
@@ -42,18 +50,18 @@ func (this *Config) read(path string) {
 	} else {
 
 		console.Info("Read from " + path + " file")
-		_ = json.Unmarshal(dat, config)
+		_ = json.Unmarshal(buf, &config)
 	}
 
-	this.Name = config.Name
-	this.UID = config.UID
+	cfg.Name = config.Name
+	cfg.UID = config.UID
 }
 
-func (this *Config) readDefault() {
+func (cfg *Config) readDefault() {
 	console.Dev("Config.readDefault()")
 
 	dat, err := ioutil.ReadFile(defaultPath)
-	config := new(Config)
+	var config Config
 
 	if err != nil {
 		data, _ := json.MarshalIndent(defaultConfig, "", "\t")
@@ -64,9 +72,9 @@ func (this *Config) readDefault() {
 		ioutil.WriteFile(defaultPath, data, 0777)
 	} else {
 		console.Info("Read from chain.config file")
-		_ = json.Unmarshal(dat, config)
+		_ = json.Unmarshal(dat, &config)
 	}
 
-	this.Name = config.Name
-	this.UID = config.UID
+	cfg.Name = config.Name
+	cfg.UID = config.UID
 }

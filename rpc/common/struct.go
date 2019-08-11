@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
@@ -22,39 +23,15 @@ type ChainService struct {
 	I int
 	C *chain.Chain
 	B *chain.Block
+
+	tiktokOver chan int
 }
 
-// HexMessage ...
-type HexMessage struct {
-	Pk                 string
-	SupposeBlockNumber string
-	Message            string
-	Sig                StringSig
-}
-
-// HexMessage ...
-type StringSig struct {
-	R []byte
-	S []byte
-	H []byte
-}
-
-// ToLog ...
-// decode hex message to specific structure
-func (this *HexMessage) ToLog() *chain.Log {
-	pk, _ := hex.DecodeString(this.Pk)
-	SupposeBlockNumber, _ := hex.DecodeString(this.SupposeBlockNumber)
-	Message, _ := hex.DecodeString(this.Message)
-	// R,_ := hex.DecodeString(this.Sig.R)
-	// S,_ := hex.DecodeString(this.Sig.S)
-	// H,_ := hex.DecodeString(this.Sig.H)
-	R := this.Sig.R
-	S := this.Sig.S
-	H := this.Sig.H
-
-	L := chain.NewLog(pk, SupposeBlockNumber, Message, R, S, H)
-
-	return L
+// NewChainService ...
+func NewChainService() *ChainService {
+	console.Dev("NewChainService()")
+	CS := new(ChainService)
+	return CS
 }
 
 // CreateBlock ...
@@ -69,13 +46,15 @@ func (cs *ChainService) CreateBlock(args *Args, result *string) error {
 	return nil
 }
 
+// NewLog ...
 func (cs *ChainService) NewLog(args *HexMessage, result *string) error {
 	cs.I++
 	console.Dev("ChainService.NewLog()" + strconv.Itoa(cs.I))
 
 	L := args.ToLog()
 
-	ok := L.VerifySig()
+	// ok := L.VerifySig()
+	ok := true
 
 	if !ok {
 		console.Error("Signature verify failed")
@@ -101,7 +80,14 @@ func (cs *ChainService) GetPool(args *Args, result *string) error {
 	return err
 }
 
-// GetPool ...
+// CleanPool ...
+func (cs *ChainService) CleanPool() {
+	console.Dev("ChainService.CleanPool()")
+	cs.B.Clear()
+	cs.B.Number++
+}
+
+// GetBlock ...
 func (cs *ChainService) GetBlock(arg uint64, result *string) error {
 	console.Dev("ChainService.GetBlock()")
 
@@ -113,14 +99,62 @@ func (cs *ChainService) GetBlock(arg uint64, result *string) error {
 	return err
 }
 
+// RunTicker TODO
+func (cs *ChainService) RunTicker() {
+	tiktok := time.NewTicker(time.Millisecond * 1000 * 10)
+	go func() {
+		for {
+			select {
+			case <-tiktok.C:
+				cs.C.WriteBlock(cs.B)
+			case <-cs.tiktokOver:
+				return
+			}
+		}
+	}()
+}
+
+// StopTicker TODO
+// func (cs *ChainService) StopTicker() {
+// 	c.tiktokOver <- true
+// 	c.tiktok.Stop()
+// }
+
+// HexMessage ...
+type HexMessage struct {
+	Pk                 string
+	SupposeBlockNumber string
+	Message            string
+	Sig                StringSig
+}
+
+// ToLog ...
+// decode hex message to specific structure
+func (hm *HexMessage) ToLog() *chain.Log {
+	pk, _ := hex.DecodeString(hm.Pk)
+	SupposeBlockNumber, _ := hex.DecodeString(hm.SupposeBlockNumber)
+	Message, _ := hex.DecodeString(hm.Message)
+	// R,_ := hex.DecodeString(hm.Sig.R)
+	// S,_ := hex.DecodeString(hm.Sig.S)
+	// H,_ := hex.DecodeString(hm.Sig.H)
+	R := hm.Sig.R
+	// S := hm.Sig.S
+	// H := hm.Sig.H
+
+	// L := chain.NewLog(pk, SupposeBlockNumber, Message, R, S, H)
+	L := chain.NewLog(pk, SupposeBlockNumber, Message, R)
+
+	return L
+}
+
 // GetChain ...
 // func (cs *ChainService) GetChain() *chain.Chain {
 // 	return cs.C
 // }
 
-// NewChainService ...
-func NewChainService() *ChainService {
-	console.Dev("NewChainService()")
-	CS := new(ChainService)
-	return CS
+// StringSig ...
+type StringSig struct {
+	R []byte
+	S []byte
+	H []byte
 }
