@@ -10,6 +10,7 @@ import (
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/bls"
 	"github.com/Doresimon/good-chain/p2p"
 	"github.com/Doresimon/good-chain/types"
 	"github.com/multiformats/go-multiaddr"
@@ -77,18 +78,24 @@ func log() {
 		tx := new(types.Transaction)
 		tx.Type = "create"
 		tx.Content = "the count infomation"
-		tx.KeyPath = "x/1/2/3"
 		tx.TimeStamp = "123123123123"
 		tx.Nonce = "1"
 
-		sender := []byte("sender")
+		sk, pk := bls.KeyGenerate()
+
+		tx.KeyPath = fmt.Sprintf("%x", pk.Marshal()) + "/1/2/3"
+
+		sender := pk.Marshal()
 		bn := []byte("123")
-		sig := []byte("sig")
+
 		txBytes, err := json.Marshal(tx)
 		if err != nil {
 			panic(err)
 		}
-		lg := chain.NewLog(sender, bn, txBytes, sig)
+
+		sigBytes := bls.Sign(sk, txBytes).Marshal()
+
+		lg := chain.NewLog(sender, bn, txBytes, sigBytes)
 		lgBytes, err := lg.Marshal()
 		if err != nil {
 			panic(err)

@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/bls"
+	"golang.org/x/crypto/bn256"
 )
 
 // LogTransferPool is used to transfer data with p2p service
@@ -84,6 +86,29 @@ func (cs *Service) MoniterPool() {
 	for {
 		var l = new(Log)
 		l = <-LogTransferPool
+
+		Sender := l.Sender
+		SupposeBN := l.SupposeBN
+		TX := l.TX
+		Sig := l.Sig
+
+		console.Warnf("Sender: %s", Sender)
+		console.Warnf("SupposeBN: %s", SupposeBN)
+		console.Warnf("TX: %s", TX)
+		console.Warnf("Sig: %s", Sig)
+
+		pk := new(bn256.G2)
+		pk.Unmarshal(Sender)
+		sig := new(bn256.G1)
+		sig.Unmarshal(Sig)
+
+		ok := bls.Verify(pk, TX, sig)
+		if ok {
+			console.Bingo("verufy sig success")
+		} else {
+			console.Error("verufy sig fail")
+		}
+
 		cs.AddLog(l)
 	}
 }
