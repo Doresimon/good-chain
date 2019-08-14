@@ -81,11 +81,14 @@ func log() {
 		tx.TimeStamp = "123123123123"
 		tx.Nonce = "1"
 
-		sk, pk := bls.KeyGenerate()
+		sk, pk, err := bls.KeyGenerate()
+		if err != nil {
+			panic(err)
+		}
 
-		tx.KeyPath = fmt.Sprintf("%x", pk.Marshal()) + "/1/2/3"
+		tx.KeyPath = pk.HexString() + "/1/2/3"
 
-		sender := pk.Marshal()
+		sender := pk.Bytes()
 		bn := []byte("123")
 
 		txBytes, err := json.Marshal(tx)
@@ -93,7 +96,10 @@ func log() {
 			panic(err)
 		}
 
-		sigBytes := bls.Sign(sk, txBytes).Marshal()
+		sigBytes, err := sk.Sign(txBytes)
+		if err != nil {
+			panic(err)
+		}
 
 		lg := chain.NewLog(sender, bn, txBytes, sigBytes)
 		lgBytes, err := lg.Marshal()

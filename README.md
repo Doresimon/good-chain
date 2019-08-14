@@ -12,6 +12,7 @@ an experimental blockchain for public benefits.
 
 ## Third Party Library
 
+<!--
 - `dep`
 
   > go get -u github.com/golang/dep/cmd/dep
@@ -29,6 +30,15 @@ an experimental blockchain for public benefits.
 - `install dependencies`
 
   > dep ensure
+-->
+
+- `go mod`
+
+  > export GO111MODULE=on
+
+  > go mod init
+
+  > go mod tidy
 
 ## Reference
 
