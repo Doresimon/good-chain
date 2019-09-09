@@ -4,10 +4,9 @@ import (
 	"os"
 
 	"github.com/Doresimon/good-chain/console"
-	"github.com/urfave/cli"
 )
 
-var app = cli.NewApp()
+// var app = cli.NewApp()
 
 func main() {
 	console.ShowColors()

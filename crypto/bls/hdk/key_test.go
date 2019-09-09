@@ -55,6 +55,14 @@ func TestPub2Pub(t *testing.T) {
 		t.Fail()
 		return
 	}
+
+	fmt.Printf("masterPrivKey = %x\n", masterPrivKey)
+	fmt.Printf("masterPubKey = %x\n", masterPubKey)
+	fmt.Printf("masterChainCode = %x\n", masterChainCode)
+	fmt.Printf("childPrivKey = %x\n", childPrivKey)
+	fmt.Printf("childPubKeyX = %x\n", childPubKeyX)
+	fmt.Printf("childChainCode = %x\n", childChainCode)
+
 	// fmt.Printf("childPubKey  = %s\n", childPubKey)
 	// fmt.Printf("childPubKeyMarshal  = %s\n", childPubKey.Marshal())
 	// fmt.Printf("childPubKeyMarshalHex  = %x\n", childPubKey.Marshal())

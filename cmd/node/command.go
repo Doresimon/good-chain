@@ -5,7 +5,9 @@ import (
 	"io/ioutil"
 
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/http"
 	"github.com/Doresimon/good-chain/p2p"
+	"github.com/Doresimon/good-chain/state"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/urfave/cli"
@@ -34,15 +36,21 @@ var appCommands = []cli.Command{
 			var nodeService struct {
 				cs *chain.Service
 				ps *p2p.Service
+				hs *http.Service
+				ss *state.Service
 			}
 
 			path := appConfig.Chain
 			chainInstance := chain.NewChain(path)
 			chainService := chain.NewService(chainInstance)
 			p2pService := p2p.NewService(chainService)
+			stateService := state.NewService(chainService)
+			httpService := http.NewService(chainService, stateService)
 
 			nodeService.cs = chainService
 			nodeService.ps = p2pService
+			nodeService.hs = httpService
+			nodeService.ss = stateService
 
 			select {}
 		},

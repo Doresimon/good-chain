@@ -21,6 +21,9 @@ const (
 	SeedSize = 32
 )
 
+var g1 = new(bn256.G1).ScalarBaseMult(big.NewInt(1))
+var g2 = new(bn256.G2).ScalarBaseMult(big.NewInt(1))
+
 // PrivateKey is the type of Ed25519 private keys. It implements crypto.Signer.
 type PrivateKey struct {
 	v     *big.Int
@@ -116,7 +119,6 @@ func Sign(sk *big.Int, msg []byte) *bn256.G1 {
 // Verification. Given user’s public key v, a message M, and a signature σ, compute h=H(M)
 // accept if e(σ, g2) = e(h, v) holds.
 func Verify(pk *bn256.G2, msg []byte, sig *bn256.G1) bool {
-	g2 := new(bn256.G2).ScalarBaseMult(big.NewInt(1))
 	h := hashToG1(msg)
 	lp := bn256.Pair(sig, g2)
 	rp := bn256.Pair(h, pk)
@@ -155,7 +157,6 @@ func AVerify(asig *bn256.G1, msgs [][]byte, pks []*bn256.G2) (ok bool, err error
 		err = fmt.Errorf("messages and public keys have different quantity")
 		return
 	}
-	g2 := new(bn256.G2).ScalarBaseMult(big.NewInt(1))
 	hs := make([]*bn256.G1, len(msgs), len(msgs))
 	for i, msg := range msgs {
 		hs[i] = hashToG1([]byte(msg))

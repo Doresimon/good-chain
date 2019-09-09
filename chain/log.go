@@ -26,6 +26,7 @@ type Log struct {
 	TX        []byte `json:"transaction"`
 	Sig       []byte `json:"signature"`
 	Hash      []byte `json:"hash"`
+	Body      *Body  `json:"body"`
 	// Sig       *Gcrypto.Signature `json:"signature"`
 	// Message   []byte             `json:"message"`
 }
@@ -79,4 +80,26 @@ func UnmarshalLog(buf []byte) (*Log, error) {
 // 		return false
 // 	}
 // 	return ecdsa.Verify(pk, hash[:], &L.Sig.R, &L.Sig.S)
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
+// }
 // }
