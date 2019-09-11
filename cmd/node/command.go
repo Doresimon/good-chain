@@ -42,15 +42,18 @@ var appCommands = []cli.Command{
 
 			path := appConfig.Chain
 			chainInstance := chain.NewChain(path)
-			chainService := chain.NewService(chainInstance)
-			p2pService := p2p.NewService(chainService)
-			stateService := state.NewService(chainService)
-			httpService := http.NewService(chainService, stateService)
 
+			chainService := chain.NewService(chainInstance)
 			nodeService.cs = chainService
+
+			p2pService := p2p.NewService(chainService)
 			nodeService.ps = p2pService
-			nodeService.hs = httpService
+
+			stateService := state.NewService(chainService)
 			nodeService.ss = stateService
+
+			// httpService := http.NewService(chainService, stateService)
+			// nodeService.hs = httpService
 
 			select {}
 		},

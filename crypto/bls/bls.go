@@ -31,7 +31,7 @@ type PrivateKey struct {
 }
 
 // Public returns the PublicKey corresponding to priv.
-func (priv PrivateKey) Public() *PublicKey {
+func (priv *PrivateKey) Public() *PublicKey {
 	var pk = new(PublicKey)
 	pk.v = new(bn256.G2).ScalarBaseMult(priv.v)
 	pk.bytes = pk.v.Marshal()
@@ -39,21 +39,33 @@ func (priv PrivateKey) Public() *PublicKey {
 }
 
 // Sign returns the signature of message signed by private key
-func (priv PrivateKey) Sign(message []byte) (signature []byte, err error) {
+func (priv *PrivateKey) Sign(message []byte) (signature []byte, err error) {
 	sig := Sign(priv.v, message)
 	return sig.Marshal(), nil
 }
 
 // HexString returns the hex string of private key
-func (priv PrivateKey) HexString() string {
+func (priv *PrivateKey) HexString() string {
 	return fmt.Sprintf("%x", priv.bytes)
 }
 
 // Bytes returns the Bytes Slice of private key
-func (priv PrivateKey) Bytes() []byte {
+func (priv *PrivateKey) Bytes() []byte {
 	var ret = make([]byte, len(priv.bytes))
 	copy(ret, priv.bytes)
 	return ret
+}
+
+// Set ...
+func (priv *PrivateKey) Set(v *big.Int) *PrivateKey {
+	priv.v = new(big.Int).Set(v)
+	priv.bytes = priv.v.Bytes()
+	return priv
+}
+
+// Value ...
+func (priv *PrivateKey) Value() *big.Int {
+	return priv.v
 }
 
 // PublicKey is the type of Ed25519 public keys.
@@ -63,12 +75,12 @@ type PublicKey struct {
 }
 
 // HexString returns the hex string of public key
-func (pub PublicKey) HexString() string {
+func (pub *PublicKey) HexString() string {
 	return fmt.Sprintf("%x", pub.bytes)
 }
 
 // Bytes returns the Bytes Slice of public key
-func (pub PublicKey) Bytes() []byte {
+func (pub *PublicKey) Bytes() []byte {
 	var ret = make([]byte, len(pub.bytes))
 	copy(ret, pub.bytes)
 	return ret
@@ -76,9 +88,26 @@ func (pub PublicKey) Bytes() []byte {
 
 // Verify reports whether sig is a valid signature of message by publicKey. It
 // will panic if len(publicKey) is not PublicKeySize.
-func (pub PublicKey) Verify(message, sigBytes []byte) bool {
+func (pub *PublicKey) Verify(message, sigBytes []byte) bool {
 	sig, _ := new(bn256.G1).Unmarshal(sigBytes)
 	return Verify(pub.v, message, sig)
+}
+
+// Set ...
+func (pub *PublicKey) Set(v *bn256.G2) *PublicKey {
+	ok := true
+	pub.v, ok = new(bn256.G2).Unmarshal(v.Marshal())
+	if !ok {
+		return nil
+	}
+
+	pub.bytes = pub.v.Marshal()
+	return pub
+}
+
+// Value ...
+func (pub *PublicKey) Value() *bn256.G2 {
+	return pub.v
 }
 
 // KeyGenerate () (*big.Int, *bn256.G2)

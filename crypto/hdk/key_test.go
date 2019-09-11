@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/Doresimon/good-chain/crypto/bls"
 	"github.com/Doresimon/good-chain/crypto/rand"
 	"golang.org/x/crypto/bn256"
 )
@@ -39,15 +40,16 @@ func TestPub2Pub(t *testing.T) {
 
 	childPrivKey, childChainCode, valid := Priv2Priv(masterPrivKey, masterChainCode, 0)
 	if !valid {
-		fmt.Printf("childPrivKey = %x\n", childPrivKey)
+		fmt.Printf("childPrivKey = %x\n", childPrivKey.Bytes())
 		fmt.Printf("childChainCode = %x\n", childChainCode)
 		t.Errorf("valid == false")
 		t.Fail()
 		return
 	}
 
-	childPubKey := new(bn256.G2).ScalarBaseMult(childPrivKey)
-	masterPubKey := new(bn256.G2).ScalarBaseMult(masterPrivKey)
+	childPubKeyValue := new(bn256.G2).ScalarBaseMult(childPrivKey.Value())
+	masterPubKey := new(bls.PublicKey)
+	masterPubKey.Set(new(bn256.G2).ScalarBaseMult(masterPrivKey.Value()))
 
 	childPubKeyX, childChainCodeX, valid := Pub2Pub(masterPubKey, masterChainCode, 0)
 	if !valid {
@@ -56,24 +58,16 @@ func TestPub2Pub(t *testing.T) {
 		return
 	}
 
-	fmt.Printf("masterPrivKey = %x\n", masterPrivKey)
-	fmt.Printf("masterPubKey = %x\n", masterPubKey)
+	fmt.Printf("masterPrivKey = %x\n", masterPrivKey.Bytes())
+	fmt.Printf("masterPubKey = %x\n", masterPubKey.Bytes())
 	fmt.Printf("masterChainCode = %x\n", masterChainCode)
-	fmt.Printf("childPrivKey = %x\n", childPrivKey)
-	fmt.Printf("childPubKeyX = %x\n", childPubKeyX)
+	fmt.Printf("childPrivKey = %x\n", childPrivKey.Bytes())
+	fmt.Printf("childPubKeyX = %x\n", childPubKeyX.Bytes())
 	fmt.Printf("childChainCode = %x\n", childChainCode)
 
-	// fmt.Printf("childPubKey  = %s\n", childPubKey)
-	// fmt.Printf("childPubKeyMarshal  = %s\n", childPubKey.Marshal())
-	// fmt.Printf("childPubKeyMarshalHex  = %x\n", childPubKey.Marshal())
-
-	// data := []byte("any + old & data")
-	// childPubKeyBase64 := base64.StdEncoding.EncodeToString(childPubKey.Marshal())
-	// fmt.Printf("childPubKeyBase64  = %s\n", childPubKeyBase64)
-
-	if string(childPubKey.Marshal()) != string(childPubKeyX.Marshal()) {
-		fmt.Printf("childPubKey  = %s\n", childPubKey)
-		fmt.Printf("childPubKeyX = %s\n", childPubKeyX)
+	if string(childPubKeyValue.Marshal()) != string(childPubKeyX.Bytes()) {
+		fmt.Printf("childPubKey  = %s\n", childPubKeyValue)
+		fmt.Printf("childPubKeyX = %s\n", childPubKeyX.Bytes())
 		t.Errorf("childPubKey is not equal to childPubKeyX")
 	}
 	if fmt.Sprintf("%x", childChainCode) != fmt.Sprintf("%x", childChainCodeX) {

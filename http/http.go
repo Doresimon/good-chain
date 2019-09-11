@@ -9,11 +9,16 @@ import (
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/bls"
+	"github.com/Doresimon/good-chain/crypto/hdk"
+	"github.com/Doresimon/good-chain/crypto/rand"
 	"github.com/Doresimon/good-chain/state"
 )
 
 var port = "80"
 var s = new(Service)
+var msaterKey *bls.PrivateKey
+var masterChainCode []byte
 
 // Service ...
 type Service struct {
@@ -24,12 +29,21 @@ type Service struct {
 
 // NewService ...
 func NewService(cs *chain.Service, ss *state.Service) *Service {
+	// key setup
+	key := []byte("good chain key")
+	seed, _ := rand.Bytes(256)
+	var err error
+	msaterKey, masterChainCode, err = hdk.GenerateMasterKey(key, seed)
+	if err != nil {
+		panic(err)
+	}
+
+	// service setup
 	s.port = port
 	s.cs = cs
 	s.ss = ss
-	console.Title("Http Info")
-	console.Infof("port = %s", s.port)
 
+	// api setup
 	http.HandleFunc("/create-org", newAccount)
 	http.HandleFunc("/create-account", newAccount)
 	http.HandleFunc("/read-org-list", readOrgList)
@@ -38,6 +52,12 @@ func NewService(cs *chain.Service, ss *state.Service) *Service {
 	http.HandleFunc("/create-response", newReponse)
 	go http.ListenAndServe(":"+s.port, nil)
 
+	// print info
+	console.Title("Http Info")
+	console.Infof("port = %s", s.port)
+	console.Infof("msaterKey = %x", msaterKey.Bytes())
+	console.Infof("masterChainCode = %x", masterChainCode)
+	console.Title("---------")
 	return s
 }
 

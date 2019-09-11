@@ -2,7 +2,7 @@
 
 ## chain
 
-a chain contains some blocks, has a config 
+a chain contains some blocks, has a config
 to define the characteristics, such as `uid`,
 `name`...
 
@@ -20,23 +20,46 @@ a block contains some logs that can never be changed
         -- log #1
         -- ... #N
 
-
 ### Crypto
 
 - secret key
 
-    256 bits
+  256 bits
 
 - public key
 
-    pk = [sk]*G
+  pk = [sk]\*G
 
-    format = hex
+  format = hex
 
 - elliptic curve
 
-    P256
-    
+  P256
+
 - signature
 
-    ecdsa
+  ecdsa
+
+### data struct
+
+1. Msg
+
+2. Tx
+
+```js
+{
+    Signer:"", // pk
+    Signature:"",
+    Hash:"",
+    Body:{
+        Type:"",
+        Action:"",
+        TimeStamp:"",
+        To:"", //path
+        Encrypted: bool, //是否加密
+        Content:{
+
+        }
+    }
+}
+```
