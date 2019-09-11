@@ -2,9 +2,11 @@ package chain
 
 // Body ...
 type Body struct {
-	Type    string   `json:"type"`
-	Action  string   `json:"action"`
-	Content *Content `json:"content"`
+	Type   string `json:"type"`
+	Action string `json:"action"`
+	// Content      *Content `json:"content"`
+	ContentBytes []byte `json:"content-bytes"`
+	Timestamp    uint32 `json:"timestamp"`
 }
 
 // Content ...

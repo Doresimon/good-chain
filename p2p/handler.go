@@ -3,11 +3,10 @@ package p2p
 import (
 	"bufio"
 	"fmt"
-	"time"
 
-	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
 	"github.com/Doresimon/good-chain/crypto/coding"
+	"github.com/Doresimon/good-chain/middleware/message"
 	net "github.com/libp2p/go-libp2p-core/network"
 )
 
@@ -23,17 +22,7 @@ func handleLog(s net.Stream) {
 			}
 			console.Infof("new message received >> msg.Type = %d, msg.Content = %s", newMsg.Type, newMsg.Content)
 
-			l, err := chain.UnmarshalLog(newMsg.Content)
-			if err != nil {
-				console.Error(err.Error())
-				return
-			}
-
-			for i := 0; i < 128; i++ {
-				chain.LogTransferPool <- l // chainInstace will monitor this channel
-
-				time.Sleep(time.Second * 1)
-			}
+			message.Parse(newMsg.Content)
 		}
 	}()
 }

@@ -1,7 +1,6 @@
 package http
 
 import (
-	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -17,7 +16,7 @@ import (
 
 var port = "80"
 var s = new(Service)
-var msaterKey *bls.PrivateKey
+var masterKey *bls.PrivateKey
 var masterChainCode []byte
 
 // Service ...
@@ -33,7 +32,7 @@ func NewService(cs *chain.Service, ss *state.Service) *Service {
 	key := []byte("good chain key")
 	seed, _ := rand.Bytes(256)
 	var err error
-	msaterKey, masterChainCode, err = hdk.GenerateMasterKey(key, seed)
+	masterKey, masterChainCode, err = hdk.GenerateMasterKey(key, seed)
 	if err != nil {
 		panic(err)
 	}
@@ -55,7 +54,7 @@ func NewService(cs *chain.Service, ss *state.Service) *Service {
 	// print info
 	console.Title("Http Info")
 	console.Infof("port = %s", s.port)
-	console.Infof("msaterKey = %x", msaterKey.Bytes())
+	console.Infof("masterKey = %x", masterKey.Bytes())
 	console.Infof("masterChainCode = %x", masterChainCode)
 	console.Title("---------")
 	return s
@@ -76,9 +75,9 @@ func newAccount(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	logBodyBytes, _ := json.Marshal(log.Body)
-	hash := sha256.Sum256(logBodyBytes)
-	log.Hash = hash[:]
+	// logBodyBytes, _ := json.Marshal(log.Body)
+	// hash := sha256.Sum256(logBodyBytes)
+	// log.Hash = hash[:]
 
 	s.cs.AddLog(&log)
 
@@ -101,10 +100,6 @@ func newRequest(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-	logBodyBytes, _ := json.Marshal(log.Body)
-	hash := sha256.Sum256(logBodyBytes)
-	log.Hash = hash[:]
-
 	s.cs.AddLog(&log)
 
 	t, _ := json.Marshal(log.Body)
@@ -125,10 +120,6 @@ func newReponse(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		panic(err)
 	}
-
-	logBodyBytes, _ := json.Marshal(log.Body)
-	hash := sha256.Sum256(logBodyBytes)
-	log.Hash = hash[:]
 
 	s.cs.AddLog(&log)
 

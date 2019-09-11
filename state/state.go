@@ -2,22 +2,23 @@ package state
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/hdk"
+	"github.com/Doresimon/good-chain/middleware/application"
 )
 
 // State state tree
 type State struct {
-	orgMap map[string]*Account
-	orgs   []string
+	OrgMap map[string]*application.Account
+	Orgs   []string
 }
 
 // NewState ...
 func NewState() *State {
 	s := new(State)
-	s.orgMap = make(map[string]*Account)
+	s.OrgMap = make(map[string]*application.Account)
 	return s
 }
 
@@ -26,35 +27,32 @@ func (s *State) HandleBody(body *chain.Body) {
 	switch body.Type {
 	case "ORG":
 		switch body.Action {
-		case "create":
-			s.CreateOrg(body.Content)
-		case "update":
+		case "CREATE":
+			s.CreateOrg(body.ContentBytes)
+		case "UPDATE":
 			s.UpdateOrg()
 		}
 
 	case "ACCOUNT":
 		switch body.Action {
-		case "create":
-			s.CreateAcc(body.Content)
-		case "update":
+		case "CREATE":
+			s.CreateAcc(body.ContentBytes)
+		case "UPDATE":
 			s.UpdateAcc()
 		}
 	}
 }
 
 // CreateOrg ...
-func (s *State) CreateOrg(content *chain.Content) error {
-	acc := NewAccount()
-	acc.name = content.Name
-	acc.path = content.Name
-	acc.extra = content.Extra
+func (s *State) CreateOrg(content []byte) error {
+	acc := application.ParseAccountCreation(content)
 
-	if _, exist := s.orgMap[acc.name]; exist {
+	if _, exist := s.OrgMap[acc.Name]; exist {
 		return fmt.Errorf("org exist")
 	}
 
-	s.orgMap[acc.name] = acc
-	s.orgs = append(s.orgs, acc.name)
+	s.OrgMap[acc.Name] = acc
+	s.Orgs = append(s.Orgs, acc.Name)
 
 	return nil
 }
@@ -65,32 +63,26 @@ func (s *State) UpdateOrg() {
 }
 
 // CreateAcc ...
-func (s *State) CreateAcc(content *chain.Content) error {
+func (s *State) CreateAcc(content []byte) error {
+	acc := application.ParseAccountCreation(content)
 
-	acc := NewAccount()
-	acc.name = content.Name
-	acc.path = content.Path
-	acc.index = content.Index
-	acc.extra = content.Extra
+	path := hdk.NewPath(acc.Path)
 
-	paths := strings.Split(acc.path, "/")
-	if _, exist := s.orgMap[paths[0]]; !exist {
+	if _, exist := s.OrgMap[path.Root]; !exist {
 		return fmt.Errorf("org not exist")
 	}
 
-	parentAcc := s.orgMap[paths[0]]
-	for i := 1; i < len(paths)-1; i++ {
-		parentAcc = parentAcc.GetChild(paths[i])
-	}
+	orgAcc := s.OrgMap[path.Root]
+	parentAcc := orgAcc.GetDeepChild(path.ParentPath())
 
-	if _, exist := parentAcc.childs[acc.index]; exist {
+	if _, exist := parentAcc.ChildsMap[acc.Index]; exist {
 		return fmt.Errorf("acc exist")
 	}
 
-	parentAcc.childs[acc.index] = acc
-	parentAcc.childsList = append(parentAcc.childsList, acc.index)
+	parentAcc.ChildsMap[acc.Index] = acc
+	parentAcc.ChildsList = append(parentAcc.ChildsList, acc.Index)
 
-	console.Infof("CreateAcc, name=%s, path=%s", acc.name, acc.path)
+	console.Infof("CreateAcc, name=%s, path=%s", acc.Name, acc.Path)
 	return nil
 }
 

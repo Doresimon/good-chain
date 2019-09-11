@@ -205,3 +205,14 @@ func hashToG1(msg []byte) *bn256.G1 {
 	bn := new(big.Int).SetBytes(hash[:])
 	return new(bn256.G1).ScalarBaseMult(bn)
 }
+
+// NewPubKey ...
+func NewPubKey(pubkBytes []byte) *PublicKey {
+	pubk := new(PublicKey)
+	v, ok := new(bn256.G2).Unmarshal(pubkBytes)
+	if !ok {
+		panic("NewPubKey failed")
+	}
+	pubk.Set(v)
+	return pubk
+}

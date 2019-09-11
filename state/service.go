@@ -42,6 +42,12 @@ func (s *Service) Update() {
 		for _, log := range block.Logs {
 			s.state.HandleBody(log.Body)
 		}
+
+		for _, orgName := range s.state.Orgs {
+			org := s.state.OrgMap[orgName]
+
+			fmt.Printf("name=%s, extra=%s\n", org.Name, org.Extra)
+		}
 	}
 	s.next = curBN
 }
@@ -60,16 +66,16 @@ func (s *Service) Tick() {
 
 // OrgList ...
 func (s *Service) OrgList() []byte {
-	ret := make([]map[string]interface{}, len(s.state.orgs), len(s.state.orgs))
+	ret := make([]map[string]interface{}, len(s.state.Orgs), len(s.state.Orgs))
 
-	fmt.Printf(" len(s.state.orgs)=%d\n", len(s.state.orgs))
+	fmt.Printf(" len(s.state.orgs)=%d\n", len(s.state.Orgs))
 
-	for i, orgName := range s.state.orgs {
-		org := s.state.orgMap[orgName]
+	for i, orgName := range s.state.Orgs {
+		org := s.state.OrgMap[orgName]
 		retOrg := make(map[string]interface{})
-		retOrg["name"] = org.name
-		retOrg["child_len"] = len(org.childsList)
-		retOrg["task_len"] = len(org.tasks)
+		retOrg["name"] = org.Name
+		retOrg["child_len"] = len(org.ChildsList)
+		retOrg["task_len"] = len(org.Tasks)
 
 		ret[i] = retOrg
 	}
@@ -83,16 +89,16 @@ func (s *Service) OrgList() []byte {
 
 // AccList ...
 func (s *Service) AccList(orgName string) []byte {
-	org := s.state.orgMap[orgName]
-	ret := make([]map[string]interface{}, len(org.childsList), len(org.childsList))
+	org := s.state.OrgMap[orgName]
+	ret := make([]map[string]interface{}, len(org.ChildsList), len(org.ChildsList))
 
-	for i, childName := range org.childsList {
-		child := org.childs[childName]
+	for i, childName := range org.ChildsList {
+		child := org.ChildsMap[childName]
 		tmp := make(map[string]interface{})
-		tmp["name"] = child.name
-		tmp["path"] = child.path
-		tmp["index"] = child.index
-		tmp["extra"] = child.extra
+		tmp["name"] = child.Name
+		tmp["path"] = child.Path
+		tmp["index"] = child.Index
+		tmp["extra"] = child.Extra
 
 		ret[i] = tmp
 	}

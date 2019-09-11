@@ -121,6 +121,15 @@ func Pub2Pub(parentPubKey *bls.PublicKey, parentChainCode []byte, index uint32) 
 	return childPubKey, childChainCode, true
 }
 
+// Verify ...
+func Verify(pubkBytes []byte, messageBytes []byte, sigBytes []byte) bool {
+	pubk := bls.NewPubKey(pubkBytes)
+	if pubk == nil {
+		return false
+	}
+	return pubk.Verify(messageBytes, sigBytes)
+}
+
 func int32ToBytes(i uint32) []byte {
 	ret := make([]byte, 4, 4)
 	// ret[0] = byte((i & 0xff000000) >> 24)

@@ -12,6 +12,7 @@ const (
 	HEARTBEAT = iota
 	SYNC
 	HELLO
+	LOG
 )
 
 // Message is one message transfered throught p2p channel
