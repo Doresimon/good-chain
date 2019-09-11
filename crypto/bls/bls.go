@@ -1,7 +1,6 @@
 package bls
 
 import (
-	"crypto"
 	"crypto/rand"
 	"crypto/sha256"
 	"fmt"
@@ -22,33 +21,93 @@ const (
 	SeedSize = 32
 )
 
-// PublicKey is the type of Ed25519 public keys.
-type PublicKey []byte
+var g1 = new(bn256.G1).ScalarBaseMult(big.NewInt(1))
+var g2 = new(bn256.G2).ScalarBaseMult(big.NewInt(1))
 
 // PrivateKey is the type of Ed25519 private keys. It implements crypto.Signer.
-type PrivateKey []byte
+type PrivateKey struct {
+	v     *big.Int
+	bytes []byte
+}
 
 // Public returns the PublicKey corresponding to priv.
-func (priv PrivateKey) Public() crypto.PublicKey {
-	publicKey := make([]byte, PublicKeySize)
-	copy(publicKey, priv[32:])
-	return PublicKey(publicKey)
+func (priv *PrivateKey) Public() *PublicKey {
+	var pk = new(PublicKey)
+	pk.v = new(bn256.G2).ScalarBaseMult(priv.v)
+	pk.bytes = pk.v.Marshal()
+	return pk
 }
 
 // Sign returns the signature of message signed by private key
-func (priv PrivateKey) Sign(message []byte) (signature []byte, err error) {
-	sk := new(big.Int).SetBytes(priv)
-	sk.Bytes()
-	sig := Sign(sk, message)
+func (priv *PrivateKey) Sign(message []byte) (signature []byte, err error) {
+	sig := Sign(priv.v, message)
 	return sig.Marshal(), nil
+}
+
+// HexString returns the hex string of private key
+func (priv *PrivateKey) HexString() string {
+	return fmt.Sprintf("%x", priv.bytes)
+}
+
+// Bytes returns the Bytes Slice of private key
+func (priv *PrivateKey) Bytes() []byte {
+	var ret = make([]byte, len(priv.bytes))
+	copy(ret, priv.bytes)
+	return ret
+}
+
+// Set ...
+func (priv *PrivateKey) Set(v *big.Int) *PrivateKey {
+	priv.v = new(big.Int).Set(v)
+	priv.bytes = priv.v.Bytes()
+	return priv
+}
+
+// Value ...
+func (priv *PrivateKey) Value() *big.Int {
+	return priv.v
+}
+
+// PublicKey is the type of Ed25519 public keys.
+type PublicKey struct {
+	v     *bn256.G2
+	bytes []byte
+}
+
+// HexString returns the hex string of public key
+func (pub *PublicKey) HexString() string {
+	return fmt.Sprintf("%x", pub.bytes)
+}
+
+// Bytes returns the Bytes Slice of public key
+func (pub *PublicKey) Bytes() []byte {
+	var ret = make([]byte, len(pub.bytes))
+	copy(ret, pub.bytes)
+	return ret
 }
 
 // Verify reports whether sig is a valid signature of message by publicKey. It
 // will panic if len(publicKey) is not PublicKeySize.
-func (pub PublicKey) Verify(message, sigBytes []byte) bool {
-	sig, _ := (*bn256.G1).Unmarshal(new(bn256.G1).ScalarBaseMult(big.NewInt(1)), sigBytes)
-	pk, _ := (*bn256.G2).Unmarshal(new(bn256.G2).ScalarBaseMult(big.NewInt(1)), pub)
-	return Verify(pk, message, sig)
+func (pub *PublicKey) Verify(message, sigBytes []byte) bool {
+	sig, _ := new(bn256.G1).Unmarshal(sigBytes)
+	return Verify(pub.v, message, sig)
+}
+
+// Set ...
+func (pub *PublicKey) Set(v *bn256.G2) *PublicKey {
+	ok := true
+	pub.v, ok = new(bn256.G2).Unmarshal(v.Marshal())
+	if !ok {
+		return nil
+	}
+
+	pub.bytes = pub.v.Marshal()
+	return pub
+}
+
+// Value ...
+func (pub *PublicKey) Value() *bn256.G2 {
+	return pub.v
 }
 
 // KeyGenerate () (*big.Int, *bn256.G2)
@@ -56,9 +115,24 @@ func (pub PublicKey) Verify(message, sigBytes []byte) bool {
 // and compute v = g2^x. The user’s
 // public key is v <--- G2. The user’s secret key is x <--- Zp.
 // func KeyGenerate() (*big.Int, *bn256.G2, PrivateKey, PublicKey) {
-func KeyGenerate() (*big.Int, *bn256.G2) {
-	sk, pk, _ := bn256.RandomG2(rand.Reader)
-	return sk, pk
+func KeyGenerate() (sk *PrivateKey, pk *PublicKey, err error) {
+	sk = new(PrivateKey)
+	pk = new(PublicKey)
+
+	sk.v, pk.v, err = bn256.RandomG2(rand.Reader)
+	if err != nil {
+		return
+	}
+
+	buf1 := sk.v.Bytes()
+	sk.bytes = make([]byte, len(buf1))
+	copy(sk.bytes, buf1)
+
+	buf2 := pk.v.Marshal()
+	pk.bytes = make([]byte, len(buf2))
+	copy(pk.bytes, buf2)
+
+	return
 }
 
 // Sign (sk *big.Int, msg string) *bn256.G1
@@ -74,7 +148,6 @@ func Sign(sk *big.Int, msg []byte) *bn256.G1 {
 // Verification. Given user’s public key v, a message M, and a signature σ, compute h=H(M)
 // accept if e(σ, g2) = e(h, v) holds.
 func Verify(pk *bn256.G2, msg []byte, sig *bn256.G1) bool {
-	g2 := new(bn256.G2).ScalarBaseMult(big.NewInt(1))
 	h := hashToG1(msg)
 	lp := bn256.Pair(sig, g2)
 	rp := bn256.Pair(h, pk)
@@ -113,7 +186,6 @@ func AVerify(asig *bn256.G1, msgs [][]byte, pks []*bn256.G2) (ok bool, err error
 		err = fmt.Errorf("messages and public keys have different quantity")
 		return
 	}
-	g2 := new(bn256.G2).ScalarBaseMult(big.NewInt(1))
 	hs := make([]*bn256.G1, len(msgs), len(msgs))
 	for i, msg := range msgs {
 		hs[i] = hashToG1([]byte(msg))
@@ -132,4 +204,15 @@ func hashToG1(msg []byte) *bn256.G1 {
 	hash := sha256.Sum256(msg)
 	bn := new(big.Int).SetBytes(hash[:])
 	return new(bn256.G1).ScalarBaseMult(bn)
+}
+
+// NewPubKey ...
+func NewPubKey(pubkBytes []byte) *PublicKey {
+	pubk := new(PublicKey)
+	v, ok := new(bn256.G2).Unmarshal(pubkBytes)
+	if !ok {
+		panic("NewPubKey failed")
+	}
+	pubk.Set(v)
+	return pubk
 }

@@ -19,6 +19,13 @@ const (
 	BLOCKSTATE_DEAD     = 0x04
 )
 
+// NewChain create a new chain instacne with config file path
+func NewChain(path string) *Chain {
+	c := new(Chain)
+	c.Genesis(path)
+	return c
+}
+
 // Chain TODO
 type Chain struct {
 	I            int
@@ -30,13 +37,6 @@ type Chain struct {
 	tiktok       *time.Ticker
 	tiktokOver   chan bool
 	pendingBlock *Block
-}
-
-// NewChain create a new chain instacne with config file path
-func NewChain(path string) *Chain {
-	c := new(Chain)
-	c.Genesis(path)
-	return c
 }
 
 // Genesis TODO

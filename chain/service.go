@@ -5,22 +5,11 @@ import (
 	"time"
 
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/hdk"
 )
 
 // LogTransferPool is used to transfer data with p2p service
 var LogTransferPool = make(chan *Log, 256)
-
-// Service ...
-type Service struct {
-	C *Chain
-
-	// LogPool   []*Log
-	// BlockPool []*Block
-	LogPool   chan *Log
-	BlockPool chan *Block
-
-	tiktokOver chan interface{}
-}
 
 // NewService ...
 func NewService(c *Chain) *Service {
@@ -35,6 +24,18 @@ func NewService(c *Chain) *Service {
 	go cs.RunTicker()
 
 	return cs
+}
+
+// Service ...
+type Service struct {
+	C *Chain
+
+	// LogPool   []*Log
+	// BlockPool []*Block
+	LogPool   chan *Log
+	BlockPool chan *Block
+
+	tiktokOver chan interface{}
 }
 
 // AddLog add a log to LogPool
@@ -84,6 +85,21 @@ func (cs *Service) MoniterPool() {
 	for {
 		var l = new(Log)
 		l = <-LogTransferPool
+
+		console.Warnf("Sender: %s", l.Sender)
+		console.Warnf("Sig: %s", l.Sig)
+
+		bodyBytes, err := json.Marshal(l.Body)
+		if err != nil {
+			panic(err)
+		}
+		ok := hdk.Verify(l.Sender, bodyBytes, l.Sig)
+		if ok {
+			console.Bingo("verufy sig success")
+		} else {
+			console.Error("verufy sig fail")
+		}
+
 		cs.AddLog(l)
 	}
 }

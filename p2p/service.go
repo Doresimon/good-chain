@@ -82,6 +82,7 @@ func NewService(cs *chain.Service) *Service {
 	console.Infof("addr = /ip4/127.0.0.1/tcp/%v/p2p/%s", port, host.ID().Pretty())
 	console.Infof("You can replace 127.0.0.1 with public IP as well.")
 	console.Infof("Waiting for incoming connection\n")
+	console.Title("---------")
 
 	return service
 

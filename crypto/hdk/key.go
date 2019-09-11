@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/Doresimon/good-chain/crypto/bls"
 	"github.com/Doresimon/good-chain/crypto/hash/hmac"
 	"golang.org/x/crypto/bn256"
 )
@@ -12,37 +13,53 @@ var bn256Order = bn256.Order
 var bigZero = new(big.Int).SetInt64(0)
 var bigTmp = new(big.Int).SetInt64(0)
 
+// // HDPrivateKey ...
+// type HDPrivateKey interface {
+// 	Public() *HDPublicKey
+// 	Sign([]byte) ([]byte, error)
+// 	Bytes() []byte
+// }
+
+// // HDPublicKey ...
+// type HDPublicKey interface {
+// 	Bytes() []byte
+// 	Verify(message, sigBytes []byte) bool
+// }
+
 // GenerateMasterKey TODO
-func GenerateMasterKey(key, seed []byte) (masterKey *big.Int, chainCode []byte, err error) {
+func GenerateMasterKey(key, seed []byte) (masterKey *bls.PrivateKey, chainCode []byte, err error) {
 	MAC := hmac.SHA512(key, seed)
-	masterKey = new(big.Int).SetBytes(MAC[0:32])
+	privateKeyValue := new(big.Int).SetBytes(MAC[0:32])
 	chainCode = MAC[32:64]
 
-	masterKey.Mod(masterKey, bn256Order)
+	privateKeyValue.Mod(privateKeyValue, bn256Order)
 
-	masterKeyBytes := masterKey.Bytes()
-	len := len(masterKeyBytes)
+	privateKeyValueBytes := privateKeyValue.Bytes()
+	len := len(privateKeyValueBytes)
 	if len < 32 {
 		emptyBytes := make([]byte, 32-len)
-		masterKeyBytes = append(emptyBytes, masterKeyBytes...)
+		privateKeyValueBytes = append(emptyBytes, privateKeyValueBytes...)
 	}
 	if len > 32 {
 		panic("len > 32") // it should never go here
 	}
 
-	masterKey.SetBytes(masterKeyBytes)
-	if masterKey.Sign() == 0 {
+	privateKeyValue.SetBytes(privateKeyValueBytes)
+	if privateKeyValue.Sign() == 0 {
 		err = fmt.Errorf("master key is all 0")
 	}
+
+	masterKey = new(bls.PrivateKey)
+	masterKey.Set(privateKeyValue)
 	return
 }
 
 // Priv2Priv The function Priv2Priv((k_p, c_p), i) → (k_c, c_c) computes a child extended private key from the parent extended private key
-func Priv2Priv(parentPrivKey *big.Int, parentChainCode []byte, index uint32) (*big.Int, []byte, bool) {
+func Priv2Priv(parentPrivKey *bls.PrivateKey, parentChainCode []byte, index uint32) (*bls.PrivateKey, []byte, bool) {
 	key := parentChainCode
 	data := make([]byte, 0, 0) // Data = ser(point(k)) || ser (i))
 
-	parentPubKey := new(bn256.G2).ScalarBaseMult(parentPrivKey)
+	parentPubKey := new(bn256.G2).ScalarBaseMult(parentPrivKey.Value())
 	d1 := parentPubKey.Marshal()
 	d2 := int32ToBytes(index)
 	data = append(data, d1...)
@@ -50,30 +67,30 @@ func Priv2Priv(parentPrivKey *big.Int, parentChainCode []byte, index uint32) (*b
 
 	mac := hmac.SHA512(key, data)
 
-	childKey := new(big.Int)
-	childKey.SetBytes(mac[0:32])
-	childKey.Add(childKey, parentPrivKey)
-	childKey.Mod(childKey, bn256Order)
+	childKeyValue := new(big.Int)
+	childKeyValue.SetBytes(mac[0:32])
+	childKeyValue.Add(childKeyValue, parentPrivKey.Value())
+	childKeyValue.Mod(childKeyValue, bn256Order)
 
 	childChainCode := make([]byte, 32, 32)
 	copy(childChainCode, mac[32:64])
 
-	if childKey.Sign() == 0 {
+	if childKeyValue.Sign() == 0 {
 		return nil, nil, false
 	}
-	// if bigTmp.Sub(bn256Order, childKey).Sign() != 1 {
-	// 	return nil, nil, false
-	// }
+
+	childKey := new(bls.PrivateKey)
+	childKey.Set(childKeyValue)
 	return childKey, childChainCode, true
 }
 
 // Pub2Pub The function Pub2Pub((K , c ), i) → (K , c ) computes a child extended public key from
 // the parent extended public key
-func Pub2Pub(parentPubKey *bn256.G2, parentChainCode []byte, index uint32) (*bn256.G2, []byte, bool) {
+func Pub2Pub(parentPubKey *bls.PublicKey, parentChainCode []byte, index uint32) (*bls.PublicKey, []byte, bool) {
 	key := parentChainCode
 	data := make([]byte, 0, 0) // Data = []byte(point(k)) || [4]byte(i))
 
-	d1 := parentPubKey.Marshal()
+	d1 := parentPubKey.Value().Marshal()
 	d2 := int32ToBytes(index)
 	data = append(data, d1...)
 	data = append(data, d2...)
@@ -90,15 +107,27 @@ func Pub2Pub(parentPubKey *bn256.G2, parentChainCode []byte, index uint32) (*bn2
 	// 	return nil, nil, false
 	// }
 
-	childPubKey := new(bn256.G2)
-	childPubKey.ScalarBaseMult(tmpBN)
+	childPubKeyValue := new(bn256.G2)
+	childPubKeyValue.ScalarBaseMult(tmpBN)
 
-	childPubKey.Add(childPubKey, parentPubKey)
+	childPubKeyValue.Add(childPubKeyValue, parentPubKey.Value())
 
 	childChainCode := make([]byte, 32, 32)
 	copy(childChainCode, mac[32:64])
 
+	childPubKey := new(bls.PublicKey)
+	childPubKey.Set(childPubKeyValue)
+
 	return childPubKey, childChainCode, true
+}
+
+// Verify ...
+func Verify(pubkBytes []byte, messageBytes []byte, sigBytes []byte) bool {
+	pubk := bls.NewPubKey(pubkBytes)
+	if pubk == nil {
+		return false
+	}
+	return pubk.Verify(messageBytes, sigBytes)
 }
 
 func int32ToBytes(i uint32) []byte {
