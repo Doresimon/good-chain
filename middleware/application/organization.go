@@ -1,19 +1,9 @@
 package application
 
-import "encoding/json"
-
+// OrgCreation is used to parse a message
 type OrgCreation struct {
 	Name      string `json:"name"`
 	PublicKey string `json:"pubkey"`
 	ChainCode string `json:"chaincode"`
 	Extra     string `json:"extra"`
-}
-
-func HandleOrg(contentBytes []byte) {
-	oc := new(OrgCreation)
-	err := json.Unmarshal(contentBytes, oc)
-	if err != nil {
-		panic(err)
-	}
-
 }

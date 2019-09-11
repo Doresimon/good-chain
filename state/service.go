@@ -45,8 +45,8 @@ func (s *Service) Update() {
 
 		for _, orgName := range s.state.Orgs {
 			org := s.state.OrgMap[orgName]
-
 			fmt.Printf("name=%s, extra=%s\n", org.Name, org.Extra)
+			fmt.Printf("%s\n", org)
 		}
 	}
 	s.next = curBN

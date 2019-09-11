@@ -3,16 +3,17 @@ package main
 import (
 	"bufio"
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	mrand "math/rand"
 	"os"
 	"time"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
-	"github.com/Doresimon/good-chain/crypto/hdk"
-	"github.com/Doresimon/good-chain/crypto/rand"
+	"github.com/Doresimon/good-chain/crypto/bls"
 	"github.com/Doresimon/good-chain/middleware/application"
 	"github.com/Doresimon/good-chain/p2p"
 	"github.com/multiformats/go-multiaddr"
@@ -24,16 +25,18 @@ import (
 )
 
 var rw *bufio.ReadWriter
+var masterPrivKey *bls.PrivateKey
+var masterChainCode []byte
 
 func main() {
+	setupKey()
 	startP2P()
+
 	app := App()
 	err := app.Run(os.Args)
-
 	if err != nil {
 		console.Fatal("error")
 	}
-
 }
 
 // AppCommands ...
@@ -46,6 +49,23 @@ var appCommands = []cli.Command{
 		Action: func(c *cli.Context) error { // read config
 			go func() {
 				logBytes := newOrg()
+
+				msg := p2p.NewMessage(p2p.LOG, logBytes)
+				data := p2p.Serialize(msg)
+				_, err := rw.Write(data)
+				if err != nil {
+					panic(err)
+				}
+				err = rw.Flush()
+				if err != nil {
+					panic(err)
+				}
+			}()
+
+			time.Sleep(time.Second * 20)
+
+			go func() {
+				logBytes := newAccount()
 
 				msg := p2p.NewMessage(p2p.LOG, logBytes)
 				data := p2p.Serialize(msg)
@@ -76,22 +96,15 @@ func App() *cli.App {
 }
 
 func newOrg() []byte {
-	// key setup
-	key := []byte("good chain key")
-	seed, _ := rand.Bytes(256)
 	var err error
-	masterPrivKey, masterChainCode, err := hdk.GenerateMasterKey(key, seed)
-	if err != nil {
-		panic(err)
-	}
 
 	content := new(application.OrgCreation)
-	// content.Name = "fudan"
-	// content.Extra = "复旦大学, 中国上海, 邯郸路220号"
-	content.Name = "tongji"
-	content.Extra = "同济大学, 中国上海, 地址不详"
-	content.PublicKey = masterPrivKey.Public().HexString()
-	content.ChainCode = fmt.Sprintf("%x", masterChainCode)
+	content.Name = "fudan"
+	content.Extra = "复旦大学, 中国上海, 邯郸路220号"
+	// content.Name = "tongji"
+	// content.Extra = "同济大学, 中国上海, 地址不详"
+	content.PublicKey = string(masterPrivKey.Public().Bytes())
+	content.ChainCode = string(masterChainCode)
 
 	body := new(chain.Body)
 	body.Type = "ORG"
@@ -119,6 +132,67 @@ func newOrg() []byte {
 	}
 
 	return logBytes
+}
+func newAccount() []byte {
+	var err error
+
+	content := new(application.AccountCreation)
+	content.Name = "陈老师"
+	content.Path = "fudan/666/0"
+	content.Extra = "美美哒"
+
+	body := new(chain.Body)
+	body.Type = "ACCOUNT"
+	body.Action = "CREATE"
+	body.Timestamp = uint32(time.Now().Unix())
+	body.ContentBytes, err = json.Marshal(content)
+	if err != nil {
+		panic(err)
+	}
+
+	bodyBytes, err := json.Marshal(body)
+	if err != nil {
+		panic(err)
+	}
+	sigBytes, err := masterPrivKey.Sign(bodyBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	log := chain.NewLog(masterPrivKey.Public().Bytes(), sigBytes, body)
+
+	logBytes, err := log.Marshal()
+	if err != nil {
+		panic(err)
+	}
+
+	return logBytes
+}
+
+func setupKey() {
+	// key setup
+	// key := []byte("good chain key")
+	// seed, _ := rand.Bytes(256)
+	// var err error
+	// masterPrivKey, masterChainCode, err = hdk.GenerateMasterKey(key, seed)
+	// if err != nil {
+	// 	panic(err)
+	// }
+	privHex := "63d252abaa4d98ecd978a0eb81c4624d8beebfb4c2e3817786da6ed6685cca04"
+	privBytes, err := hex.DecodeString(privHex)
+	if err != nil {
+		panic(err)
+	}
+	masterPrivKey = new(bls.PrivateKey).Set(new(big.Int).SetBytes(privBytes))
+
+	masterChainCodeHex := "1c6ee42d6341af5ee099669379220e9aa01973f70c5ba8df99a31234433b90e6"
+	masterChainCode, err := hex.DecodeString(masterChainCodeHex)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("masterPrivKey   = %x\n", masterPrivKey.Bytes())
+	fmt.Printf("masterChainCode = %x\n", masterChainCode)
 }
 
 func startP2P() *bufio.ReadWriter {

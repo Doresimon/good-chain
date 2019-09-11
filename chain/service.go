@@ -86,19 +86,15 @@ func (cs *Service) MoniterPool() {
 		var l = new(Log)
 		l = <-LogTransferPool
 
-		console.Warnf("Sender: %s", l.Sender)
-		console.Warnf("Sig: %s", l.Sig)
+		console.Infof("Sender: %x", l.Sender)
+		console.Infof("Sig: %x", l.Sig)
 
 		bodyBytes, err := json.Marshal(l.Body)
 		if err != nil {
 			panic(err)
 		}
 		ok := hdk.Verify(l.Sender, bodyBytes, l.Sig)
-		if ok {
-			console.Bingo("verufy sig success")
-		} else {
-			console.Error("verufy sig fail")
-		}
+		console.Infof("verify sig = %v", ok)
 
 		cs.AddLog(l)
 	}

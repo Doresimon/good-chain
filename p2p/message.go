@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/Doresimon/good-chain/console"
 	"github.com/Doresimon/good-chain/crypto/coding"
 )
 
@@ -31,14 +30,7 @@ func NewMessage(t int, c []byte) *Message {
 
 // Serialize makes message as byte slice with length as prefix
 func (m *Message) Serialize() *[]byte {
-	mBytes, err := json.Marshal(m)
-	if err != nil {
-		panic(err)
-	}
-
-	buf := coding.Uint32ToBytes(uint32(len(mBytes)))
-	buf = append(buf, mBytes...)
-
+	buf := Serialize(m)
 	return &buf
 }
 
@@ -50,9 +42,6 @@ func Serialize(m *Message) []byte {
 	}
 
 	buf := coding.Uint32ToBytes(uint32(len(mBytes)))
-
-	console.Infof("msgLen = %d", len(mBytes))
-	console.Infof("buf[4] = %x", buf)
 	buf = append(buf, mBytes...)
 
 	return buf
@@ -64,12 +53,12 @@ func Unserialize(buf []byte) (*Message, error) {
 
 	bugLen := len(buf)
 	if bugLen < 4 {
-		return nil, fmt.Errorf("buf is wrong")
+		return nil, fmt.Errorf("buf is broken")
 	}
 
 	msgLen := coding.BytesToUint32(buf[0:4])
 	if bugLen < int(msgLen+4) {
-		panic("wrong raw message")
+		panic("raw message is broken")
 	}
 
 	err := json.Unmarshal(buf[4:4+msgLen], m)

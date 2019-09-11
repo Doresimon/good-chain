@@ -1,12 +1,18 @@
 package application
 
-import "encoding/json"
+import (
+	"encoding/json"
+	"fmt"
+
+	"github.com/Doresimon/good-chain/crypto/hdk"
+)
 
 // Account ...
 type Account struct {
 	Name       string
 	Index      uint32
 	Path       string
+	PathX      *hdk.Path
 	Pk         string
 	ChildsMap  map[uint32]*Account
 	ChildsList []uint32
@@ -31,6 +37,7 @@ func (acc *Account) GetChild(index uint32) *Account {
 
 // GetDeepChild ...
 func (acc *Account) GetDeepChild(indexes []uint32) *Account {
+	fmt.Printf("%%GetDeepChild: %d\n", indexes)
 	var child = acc
 	for _, index := range indexes {
 		_, ok := child.ChildsMap[index]
@@ -40,6 +47,19 @@ func (acc *Account) GetDeepChild(indexes []uint32) *Account {
 		child = child.ChildsMap[index]
 	}
 	return child
+}
+
+// String ...
+func (acc *Account) String() string {
+	var str = fmt.Sprintf("%s: %s index=%d", acc.Path, acc.Name, acc.Index)
+	for _, index := range acc.ChildsList {
+		_, ok := acc.ChildsMap[index]
+		if !ok {
+			continue
+		}
+		str += "\n" + acc.ChildsMap[index].String()
+	}
+	return str
 }
 
 // AccountCreation ...
@@ -59,8 +79,10 @@ func ParseAccountCreation(contentBytes []byte) *Account {
 
 	acc := NewAccount()
 	acc.Path = ac.Path
+	acc.PathX = hdk.NewPath(acc.Path)
 	acc.Name = ac.Name
 	acc.Extra = ac.Extra
+	acc.Index = acc.PathX.LastIndex()
 
 	return acc
 }
