@@ -6,19 +6,23 @@ import (
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/console"
+	"github.com/Doresimon/good-chain/crypto/hdk"
 	"github.com/Doresimon/good-chain/middleware/application"
 )
 
 // State state tree
 type State struct {
-	OrgMap map[string]*application.Account
-	Orgs   []string
+	OrgMap      map[string]*application.Account  // Org.name => *Account
+	RequestMap  map[string]*application.Request  // Request.hash.hex => *Request
+	ResponseMap map[string]*application.Response // Response.hash.hex => *Response
+	Orgs        []string                         // Org.name
 }
 
 // NewState ...
 func NewState() *State {
 	s := new(State)
 	s.OrgMap = make(map[string]*application.Account)
+	s.RequestMap = make(map[string]*application.Request)
 	return s
 }
 
@@ -44,7 +48,7 @@ func (s *State) HandleBody(body *chain.Body) {
 	case "REQUEST":
 		switch body.Action {
 		case "CREATE":
-			s.CreateReq(body.ContentBytes)
+			s.CreateReq(body.HashHexString(), body.ContentBytes)
 		case "UPDATE":
 			s.UpdateReq()
 		}
@@ -52,7 +56,7 @@ func (s *State) HandleBody(body *chain.Body) {
 	case "RESPONSE":
 		switch body.Action {
 		case "CREATE":
-			s.CreateRes(body.ContentBytes)
+			s.CreateRes(body.HashHexString(), body.ContentBytes)
 		case "UPDATE":
 			s.UpdateRes()
 		}
@@ -103,12 +107,40 @@ func (s *State) CreateAcc(content []byte) error {
 	return nil
 }
 
-func (s *State) CreateReq(content []byte) error {
-	console.Infof("CreateReq not implemented")
+// CreateReq ...
+func (s *State) CreateReq(hashHex string, content []byte) error {
+	console.Infof("CreateReq ")
+	req := application.ParseRequestCreation(content)
+	path := hdk.NewPath(req.RequesterPath)
+	orgAcc, exist := s.OrgMap[path.Root]
+	if !exist {
+		return fmt.Errorf("org not exist")
+	}
+	req.Requester = orgAcc.GetDeepChild(path.Indexes)
+	req.TXHash = hashHex
+	parent := orgAcc.GetDeepChild(path.ParentPath())
+	parent.RequestList = append(parent.RequestList, req)
+
+	s.RequestMap[req.TXHash] = req
 	return nil
 }
-func (s *State) CreateRes(content []byte) error {
-	console.Infof("CreateRes not implemented")
+
+// CreateRes ...
+func (s *State) CreateRes(hashHex string, content []byte) error {
+	console.Infof("CreateRes")
+	res := application.ParseResponseCreation(content)
+	path := hdk.NewPath(res.ResponserPath)
+	orgAcc, exist := s.OrgMap[path.Root]
+	if !exist {
+		return fmt.Errorf("org not exist")
+	}
+	res.Responser = orgAcc.GetDeepChild(path.Indexes)
+	res.TXHash = hashHex
+
+	requester := s.RequestMap[res.TXHash].Requester
+	requester.ResponseList = append(requester.ResponseList, res)
+
+	s.ResponseMap[res.TXHash] = res
 	return nil
 }
 

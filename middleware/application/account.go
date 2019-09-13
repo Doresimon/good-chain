@@ -9,15 +9,17 @@ import (
 
 // Account ...
 type Account struct {
-	Name       string
-	Index      uint32
-	Path       string
-	PathX      *hdk.Path
-	Pk         string
-	ChildsMap  map[uint32]*Account
-	ChildsList []uint32
-	Extra      string
-	Tasks      []string
+	Name         string
+	Index        uint32
+	Path         string
+	PathX        *hdk.Path
+	Pk           string
+	ChildsMap    map[uint32]*Account
+	ChildsList   []uint32
+	Extra        string
+	Tasks        []string
+	RequestList  []*Request
+	ResponseList []*Response
 }
 
 // NewAccount ...

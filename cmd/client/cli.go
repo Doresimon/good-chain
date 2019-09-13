@@ -1,8 +1,6 @@
 package main
 
 import (
-	"time"
-
 	"github.com/Doresimon/good-chain/p2p"
 	"github.com/urfave/cli"
 )
@@ -15,7 +13,7 @@ var appCommands = []cli.Command{
 		Usage:       "create a new org account",
 		Description: "create a new org account",
 		Action: func(c *cli.Context) error { // read config
-			go func() {
+			{
 				logBytes := newOrg()
 
 				msg := p2p.NewMessage(p2p.LOG, logBytes)
@@ -28,11 +26,19 @@ var appCommands = []cli.Command{
 				if err != nil {
 					panic(err)
 				}
-			}()
+			}
 
-			time.Sleep(time.Second * 20)
+			select {}
+		},
+	},
+	{
+		Name:        "new-acc",
+		Aliases:     []string{"new-org"},
+		Usage:       "create a new org account",
+		Description: "create a new org account",
+		Action: func(c *cli.Context) error { // read config
 
-			go func() {
+			{
 				logBytes := newAccount()
 
 				msg := p2p.NewMessage(p2p.LOG, logBytes)
@@ -45,7 +51,32 @@ var appCommands = []cli.Command{
 				if err != nil {
 					panic(err)
 				}
-			}()
+			}
+
+			select {}
+		},
+	},
+	{
+		Name:        "new-req",
+		Aliases:     []string{"new-org"},
+		Usage:       "create a new org account",
+		Description: "create a new org account",
+		Action: func(c *cli.Context) error { // read config
+
+			{
+				logBytes := newRequest()
+
+				msg := p2p.NewMessage(p2p.LOG, logBytes)
+				data := p2p.Serialize(msg)
+				_, err := rw.Write(data)
+				if err != nil {
+					panic(err)
+				}
+				err = rw.Flush()
+				if err != nil {
+					panic(err)
+				}
+			}
 
 			select {}
 		},
