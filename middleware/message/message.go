@@ -2,7 +2,6 @@ package message
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/Doresimon/good-chain/chain"
 	"github.com/Doresimon/good-chain/crypto/hdk"
@@ -18,10 +17,6 @@ func Parse(msg []byte) {
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Printf("log.Sender: %x\n", log.Sender)
-	fmt.Printf("msgBytes: %x\n", msgBytes)
-	fmt.Printf("log.Sig: %x\n", log.Sig)
 
 	// verify signature
 	ok := hdk.Verify(log.Sender, msgBytes, log.Sig)

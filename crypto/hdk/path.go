@@ -1,6 +1,7 @@
 package hdk
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -18,15 +19,16 @@ func (p *Path) String() string {
 		arr[i] = strconv.Itoa(int(v))
 	}
 
+	fmt.Printf("String().arr=%v\n", arr)
 	ret := strings.Join(arr, "/")
 	return ret
 }
+
 func (p *Path) ParseString(str string) error {
 	arr := strings.Split(str, "/")
-
+	p.Root = arr[0]
 	psLen := len(arr) - 1
 	p.Indexes = make([]uint32, psLen)
-
 	for i := 0; i < psLen; i++ {
 		t, err := strconv.Atoi(arr[i+1])
 		if err != nil {
@@ -51,6 +53,14 @@ func (p *Path) ParentPath() []uint32 {
 		last = 0
 	}
 	return p.Indexes[0:last]
+}
+
+func (p *Path) LastIndex() uint32 {
+	last := len(p.Indexes)
+	if last == 0 {
+		return 0
+	}
+	return p.Indexes[last-1]
 }
 
 // NewPath ...
